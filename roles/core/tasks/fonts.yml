@@ -1,0 +1,133 @@
+---
+# Nerd Fonts management
+
+- name: Define Nerd Fonts to install
+  set_fact:
+    nerd_fonts_list:
+      - DroidSansMono
+      - UbuntuMono
+      - UbuntuSans
+      - JetBrainsMono
+
+- name: Get latest Nerd Fonts release tag
+  shell: curl -s https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest | jq -r '.tag_name'
+  register: nerd_fonts_tag_result
+  when: package_state == 'present'
+
+- name: Set latest Nerd Fonts version fact
+  set_fact:
+    nerd_fonts_latest_version: "{{ nerd_fonts_tag_result.stdout | default('v0.0.0') }}"
+  when: package_state == 'present'
+
+- name: Check current Nerd Fonts version
+  stat:
+    path: "{{ user_home }}/.nerd_fonts_version"
+  register: nerd_fonts_version_file
+  when: package_state == 'present'
+
+- name: Read current Nerd Fonts version
+  shell: cat {{ user_home }}/.nerd_fonts_version || echo "v0.0.0"
+  register: nerd_fonts_current_result
+  when: package_state == 'present'
+
+- name: Set current Nerd Fonts version fact
+  set_fact:
+    nerd_fonts_current_version: "{{ nerd_fonts_current_result.stdout | trim }}"
+  when: package_state == 'present'
+
+- name: Nerd Fonts installation block
+  block:
+    - name: Create temporary directory for font downloads
+      tempfile:
+        state: directory
+        suffix: nerd-fonts
+      register: nerd_fonts_temp_dir
+
+    - name: Download Nerd Fonts
+      get_url:
+        url: "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerd_fonts_latest_version }}/{{ item }}.zip"
+        dest: "{{ nerd_fonts_temp_dir.path }}/{{ item }}.zip"
+        mode: '0644'
+      loop: "{{ nerd_fonts_list }}"
+      tags:
+        - downloads
+        - slow
+
+    - name: Create extraction directories
+      file:
+        path: "{{ nerd_fonts_temp_dir.path }}/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop: "{{ nerd_fonts_list }}"
+
+    - name: Extract Nerd Fonts
+      unarchive:
+        src: "{{ nerd_fonts_temp_dir.path }}/{{ item }}.zip"
+        dest: "{{ nerd_fonts_temp_dir.path }}/{{ item }}"
+        remote_src: yes
+      loop: "{{ nerd_fonts_list }}"
+
+    - name: Create fonts directory in user home
+      file:
+        path: "{{ user_home }}/.local/share/fonts"
+        state: directory
+        mode: '0755'
+
+    - name: Install Nerd Font files
+      copy:
+        src: "{{ nerd_fonts_temp_dir.path }}/{{ item }}/"
+        dest: "{{ user_home }}/.local/share/fonts/"
+        remote_src: yes
+      loop: "{{ nerd_fonts_list }}"
+
+    - name: Update font cache
+      command: fc-cache -fv
+
+    - name: Save installed Nerd Fonts version
+      copy:
+        content: "{{ nerd_fonts_latest_version }}"
+        dest: "{{ user_home }}/.nerd_fonts_version"
+        mode: '0644'
+
+    - name: Clean up temporary directory
+      file:
+        path: "{{ nerd_fonts_temp_dir.path }}"
+        state: absent
+
+  when: 
+    - package_state == 'present'
+    - nerd_fonts_latest_version is version(nerd_fonts_current_version, '>')
+
+- name: Remove Nerd Fonts
+  block:
+    - name: Remove installed Nerd Font files
+      file:
+        path: "{{ user_home }}/.local/share/fonts"
+        state: absent
+      
+    - name: Remove Nerd Fonts version file
+      file:
+        path: "{{ user_home }}/.nerd_fonts_version"
+        state: absent
+
+    - name: Update font cache after removal
+      command: fc-cache -fv
+
+  when: package_state == 'absent'
+
+# System fonts management
+
+- name: Define system fonts to install
+  set_fact:
+    system_fonts:
+      - fonts-firacode
+      - fonts-font-awesome
+      - fonts-cantarell
+      - fonts-roboto-slab
+      - fonts-ubuntu
+
+- name: Install/Remove system fonts
+  apt:
+    name: "{{ system_fonts }}"
+    state: "{{ package_state }}"
+  become: true

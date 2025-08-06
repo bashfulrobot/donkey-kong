@@ -9,5 +9,8 @@
 - name: Core - Git configuration
   include_tasks: git.yml
   
-- name: Core - SSH configuration
-  include_tasks: ssh.yml
+- include_tasks: ssh.yml
+- include_tasks: fonts.yml
+
+- name: Core - Dock management
+  include_tasks: dock.yml

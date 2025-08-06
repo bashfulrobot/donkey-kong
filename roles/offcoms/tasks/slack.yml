@@ -99,6 +99,7 @@
     - package_state == 'present'
     - slack_check.rc != 0
 
+
 - name: Remove Slack
   apt:
     name: slack-desktop

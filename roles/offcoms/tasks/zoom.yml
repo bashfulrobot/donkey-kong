@@ -1,0 +1,65 @@
+---
+# Zoom installation
+
+- name: Check if Zoom is already installed
+  command: dpkg -l zoom
+  register: zoom_check
+  failed_when: false
+  changed_when: false
+
+- name: Zoom installation block
+  block:
+    - name: Create temporary directory for Zoom installation
+      tempfile:
+        state: directory
+        suffix: zoom
+      register: zoom_temp_dir
+
+    - name: Download Zoom deb package
+      get_url:
+        url: https://zoom.us/client/latest/zoom_amd64.deb
+        dest: "{{ zoom_temp_dir.path }}/zoom_amd64.deb"
+        mode: '0644'
+      tags:
+        - downloads
+        - slow
+
+    - name: Install Zoom deb package
+      apt:
+        deb: "{{ zoom_temp_dir.path }}/zoom_amd64.deb"
+        state: present
+      become: true
+
+    - name: Clean up temporary directory
+      file:
+        path: "{{ zoom_temp_dir.path }}"
+        state: absent
+      when: zoom_temp_dir.path is defined
+
+  when:
+    - package_state == 'present'
+    - zoom_check.rc != 0
+
+- name: Remove Zoom
+  block:
+    - name: Remove Zoom package
+      apt:
+        name: zoom
+        state: absent
+      become: true
+
+  when: package_state == 'absent'
+
+- name: Verify Zoom installation
+  command: zoom --version
+  register: zoom_version
+  failed_when: false
+  changed_when: false
+  when: package_state == 'present'
+
+- name: Display Zoom installation status
+  debug:
+    msg: "Zoom installed successfully"
+  when: 
+    - package_state == 'present'
+    - zoom_check.rc != 0

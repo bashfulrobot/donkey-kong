@@ -13,9 +13,11 @@
       alias egrep='egrep --color=auto'
       
       # Modern replacements
-      alias cat='bat'
+      alias cat='batcat'
+      alias bat='batcat'
       alias ls='eza'
-      alias find='fd'
+      alias find='fdfind'
+      alias fd='fdfind'
     mode: '0644'
 
 - name: Source aliases in shell rc files
@@ -25,6 +27,13 @@
     create: yes
   loop:
     - "{{ user_home }}/.bashrc"
+
+- name: Create Fish config directory
+  file:
+    path: "{{ user_home }}/.config/fish"
+    state: directory
+    mode: '0755'
+  when: package_state == 'present'
 
 - name: Create Fish shell aliases
   copy:
@@ -41,9 +50,11 @@
       alias egrep='egrep --color=auto'
       
       # Modern replacements
-      alias cat='bat'
+      alias cat='batcat'
+      alias bat='batcat'
       alias ls='eza'
-      alias find='fd'
+      alias find='fdfind'
+      alias fd='fdfind'
       
       # Fish-specific settings
       set -g fish_greeting ""

@@ -1,0 +1,126 @@
+---
+# Chromium installation via XtraDeb PPA for Ubuntu 24.04
+# Following instructions from https://ubuntuhandbook.org/index.php/2024/05/install-chromium-ubuntu-2404/
+
+- name: Check if Chromium is already installed
+  command: dpkg -l chromium
+  register: chromium_check
+  failed_when: false
+  changed_when: false
+
+- name: Chromium installation block
+  block:
+    - name: Install prerequisites for repository
+      package:
+        name:
+          - software-properties-common
+          - apt-transport-https
+          - ca-certificates
+        state: present
+      become: true
+
+    - name: Download XtraDeb PPA GPG key
+      get_url:
+        url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x1378B444
+        dest: /tmp/xtradeb.asc
+        mode: '0644'
+      become: true
+      tags:
+        - downloads
+        - slow
+        - never
+
+    - name: Install XtraDeb GPG key
+      command: gpg --dearmor -o /usr/share/keyrings/xtradeb.gpg /tmp/xtradeb.asc
+      become: true
+
+    - name: Set permissions on XtraDeb GPG key
+      file:
+        path: /usr/share/keyrings/xtradeb.gpg
+        mode: '0644'
+      become: true
+
+    - name: Add XtraDeb PPA for Chromium with proper GPG key
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/xtradeb.gpg] https://ppa.launchpadcontent.net/xtradeb/apps/ubuntu {{ ansible_distribution_release }} main"
+        state: present
+        filename: xtradeb
+      become: true
+
+    - name: Clean up temporary GPG key file
+      file:
+        path: /tmp/xtradeb.asc
+        state: absent
+      become: true
+      register: ppa_result
+
+    - name: Debug PPA addition result
+      debug:
+        var: ppa_result
+      when: ppa_result is defined
+
+    - name: Update apt cache after adding PPA
+      apt:
+        update_cache: yes
+      become: true
+      register: cache_update_result
+
+    - name: Debug cache update result
+      debug:
+        var: cache_update_result
+      when: cache_update_result is defined
+
+    - name: Install Chromium
+      package:
+        name: chromium
+        state: present
+      become: true
+
+  when: 
+    - package_state == 'present'
+    - chromium_check.rc != 0
+
+- name: Configure Chromium extensions
+  include_tasks: chromium-extensions.yml
+
+- name: Remove Chromium and PPA
+  block:
+    - name: Remove Chromium package
+      package:
+        name: chromium
+        state: absent
+      become: true
+
+    - name: Remove XtraDeb PPA
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/xtradeb.gpg] https://ppa.launchpadcontent.net/xtradeb/apps/ubuntu {{ ansible_distribution_release }} main"
+        state: absent
+        filename: xtradeb
+      become: true
+
+    - name: Remove XtraDeb GPG key
+      file:
+        path: /usr/share/keyrings/xtradeb.gpg
+        state: absent
+      become: true
+
+    - name: Update apt cache after removing repository
+      apt:
+        update_cache: yes
+      become: true
+
+  when: package_state == 'absent'
+
+- name: Verify Chromium installation
+  command: chromium --version
+  register: chromium_version
+  failed_when: false
+  changed_when: false
+  when: package_state == 'present'
+
+- name: Display Chromium version
+  debug:
+    msg: "{{ chromium_version.stdout }}"
+  when: 
+    - package_state == 'present'
+    - chromium_version.rc == 0

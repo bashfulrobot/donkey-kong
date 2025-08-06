@@ -22,7 +22,26 @@ ansible-playbook -i inventory --check playbook.yml
 
 # Test ansible connectivity
 ansible all -i inventory -m ping
+
+# Run main playbook (configured with auto-passwords)
+ansible-playbook playbooks/main.yml
+
+# Update all packages (apt, snap, npm, flatpak)
+just update-all
 ```
+
+## Password Management
+
+This repository uses two password files for automation:
+
+- `vars/vault_password.txt` - For decrypting Ansible vault files
+- `vars/become_password.txt` - For sudo/become operations
+
+Both files:
+- Have secure permissions (600)
+- Are configured in ansible.cfg
+- Should be updated from their default values
+- Must not be committed with real passwords
 
 ## Architecture
 

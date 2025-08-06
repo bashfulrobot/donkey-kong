@@ -1,0 +1,109 @@
+---
+# Visual Studio Code installation via Microsoft APT repository
+# Following Microsoft's official installation instructions
+
+- name: Check if VS Code is already installed
+  command: dpkg-query -W -f='${Status}' code
+  register: vscode_check
+  failed_when: false
+  changed_when: false
+
+- name: VS Code installation block
+  block:
+    - name: Install prerequisites for Microsoft repository
+      package:
+        name:
+          - wget
+          - gpg
+          - apt-transport-https
+        state: present
+      become: true
+
+    - name: Download and dearmor Microsoft GPG key
+      shell: wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
+      args:
+        creates: /usr/share/keyrings/microsoft.gpg
+      become: true
+      tags:
+        - downloads
+        - slow
+
+    - name: Set permissions on Microsoft GPG key
+      file:
+        path: /usr/share/keyrings/microsoft.gpg
+        mode: '0644'
+      become: true
+
+    
+
+    - name: Add Microsoft VS Code repository
+      copy:
+        content: |
+          ### THIS FILE IS AUTOMATICALLY CONFIGURED ###
+          # You may comment out this entry, but any other modifications may be lost.
+          Types: deb
+          URIs: https://packages.microsoft.com/repos/code
+          Suites: stable
+          Components: main
+          Architectures: amd64,arm64,armhf
+          Signed-By: /usr/share/keyrings/microsoft.gpg
+        dest: /etc/apt/sources.list.d/vscode.sources
+        mode: '0644'
+      become: true
+
+    - name: Update apt cache after adding Microsoft repository
+      apt:
+        update_cache: yes
+      become: true
+
+    - name: Install VS Code
+      package:
+        name: code
+        state: present
+      become: true
+
+
+  when: 
+    - package_state == 'present'
+    - vscode_check.rc != 0 or 'install ok installed' not in vscode_check.stdout
+
+- name: Remove VS Code and repository
+  block:
+    - name: Remove VS Code package
+      package:
+        name: code
+        state: absent
+      become: true
+
+    - name: Remove Microsoft repository
+      file:
+        path: /etc/apt/sources.list.d/vscode.sources
+        state: absent
+      become: true
+
+    - name: Remove Microsoft GPG key
+      file:
+        path: /usr/share/keyrings/microsoft.gpg
+        state: absent
+      become: true
+
+    - name: Update apt cache after removing repository
+      apt:
+        update_cache: yes
+      become: true
+
+  when: package_state == 'absent'
+
+- name: Verify VS Code installation
+  command: code --version
+  register: vscode_version
+  failed_when: false
+  changed_when: false
+  when: package_state == 'present'
+
+- name: Display VS Code version
+  debug:
+    msg: "{{ vscode_version.stdout_lines[0] if vscode_version.stdout_lines else 'VS Code version not available' }}"
+  when: 
+    - package_state == 'present'
+    - vscode_version.rc == 0

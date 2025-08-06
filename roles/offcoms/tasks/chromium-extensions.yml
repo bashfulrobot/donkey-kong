@@ -1,0 +1,82 @@
+---
+# Chromium extension management via external extensions directory
+# Extensions are automatically installed from Chrome Web Store
+
+- name: Clean up old extension files from wrong location
+  file:
+    path: /usr/share/chromium/extensions
+    state: absent
+  become: true
+
+- name: Create Chromium policies directory
+  file:
+    path: /etc/chromium/policies/managed
+    state: directory
+    mode: '0755'
+  become: true
+  when: package_state == 'present'
+
+- name: Define Chromium extensions to install
+  set_fact:
+    chromium_extensions:
+      # Essential productivity and security
+      ldgfbffkinooeloadekpmfoklnobpien: { name: "Raindrop.io", description: "Bookmark manager and read-later app" }
+      aeblfdkhhhdcdjpifhhbdiojplfjncoa: { name: "1Password", description: "Password manager" }
+      cjpalhdlnbpafiamejdnhcphjbkeiagm: { name: "uBlock Origin", description: "Efficient ad blocker" }
+      bgnkhhnnamicmpeenaelnjfhikgbkllg: { name: "AdGuard AdBlocker", description: "Backup ad blocker" }
+      
+      # Communication and workflow
+      jldhpllghnbhlbpcmnajkpdmadaolakh: { name: "Todoist for Chrome", description: "Task management" }
+      oeopbcgkkoapgobdbedcemjljbihmemj: { name: "Checker Plus for Gmail", description: "Gmail notifications and quick actions" }
+      hkhggnncdpfibdhinjiegagmopldibha: { name: "Checker Plus for Google Calendar", description: "Calendar notifications and quick events" }
+      glnpjglilkicbckjpbgcfkogebgllemb: { name: "Okta Browser Plugin", description: "SSO authentication" }
+      
+      # Reading and content
+      eimadpbcbfnmbkopoojfekhnkhdbieeh: { name: "Dark Reader", description: "Dark mode for websites" }
+      dgmanlpmmkibanfdgjocnabmcaclkmod: { name: "Just Read", description: "Distraction-free reader view" }
+      pbmlfaiicoikhdbjagjbglnbfcbcojpj: { name: "Simplify Gmail", description: "Clean Gmail interface" }
+      
+      # Utilities and tools
+      kbfnbcaeplbcioakkpcpgfkobkghlhen: { name: "Grammarly", description: "Writing assistance" }
+      pcmpcfapbekmbjjkdalcgopdkipoggdi: { name: "Markdown Downloader", description: "Save web pages as Markdown" }
+      egiemoacchfofdhhlfhkdcacgaopncmi: { name: "URL/Tab Manager", description: "Tab management" }
+      bcelhaineggdgbddincjkdmokbbdhgch: { name: "Mail Message URL", description: "Generate URLs for email messages" }
+      miancenhdlkbmjmhlginhaaepbdnlllc: { name: "Copy to Clipboard", description: "Enhanced clipboard functionality" }
+      jpfpebmajhhopeonhlcgidhclcccjcik: { name: "Speed Dial", description: "Fast bookmark access" }
+      
+      # System integration
+      gphhapmejobijbbhgpjhcjognlahblep: { name: "GNOME Shell integration", description: "GNOME extensions management" }
+      ghbmnnjooekpmoecnnnilnnbdlolhkhi: { name: "Google Docs Offline", description: "Offline Google Docs access" }
+      
+      # Theming
+      gfapcejdoghpoidkfodoiiffaaibpaem: { name: "Dracula Theme", description: "Dark theme for Chrome" }
+
+- name: Install Chromium extensions via policy
+  copy:
+    content: |
+      {
+        "ExtensionInstallForcelist": [
+          {% for extension_id, details in chromium_extensions.items() %}
+          "{{ extension_id }};https://clients2.google.com/service/update2/crx"{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+    dest: /etc/chromium/policies/managed/extensions.json
+    mode: '0644'
+  become: true
+  when: package_state == 'present'
+
+- name: Remove Chromium extensions policy when uninstalling
+  file:
+    path: /etc/chromium/policies/managed/extensions.json
+    state: absent
+  become: true
+  when: package_state == 'absent'
+
+- name: Remove Chromium policies directory if empty
+  file:
+    path: /etc/chromium/policies/managed
+    state: absent
+  become: true
+  when: package_state == 'absent'
+  ignore_errors: yes

@@ -12,4 +12,7 @@
 - name: Dev - Go development setup
   include_tasks: golang.yml
 
+- name: Dev - VS Code setup
+  include_tasks: vscode.yml
+
 # Docker moved to infra role - run 'just infra' for containerization tools

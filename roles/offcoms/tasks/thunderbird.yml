@@ -1,0 +1,61 @@
+---
+# Thunderbird email client management
+
+- name: Check if Thunderbird is installed
+  command: dpkg -l thunderbird
+  register: thunderbird_check
+  failed_when: false
+  changed_when: false
+
+- name: Install Thunderbird
+  package:
+    name: thunderbird
+    state: present
+  become: true
+  when: 
+    - package_state == 'present'
+    - thunderbird_check.rc != 0
+
+- name: Remove Thunderbird and related packages
+  block:
+    - name: Remove Thunderbird packages
+      package:
+        name:
+          - thunderbird
+          - thunderbird-locale-en
+          - thunderbird-locale-en-us
+        state: absent
+        autoremove: yes
+      become: true
+
+    - name: Remove Thunderbird snap if present
+      snap:
+        name: thunderbird
+        state: absent
+      become: true
+      ignore_errors: yes
+
+    - name: Clean up Thunderbird configuration directories
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ user_home }}/.thunderbird"
+        - "{{ user_home }}/.cache/thunderbird"
+      when: user_home is defined
+
+  when: package_state == 'absent'
+
+- name: Verify Thunderbird installation
+  command: thunderbird --version
+  register: thunderbird_version
+  failed_when: false
+  changed_when: false
+  when: package_state == 'present'
+
+- name: Display Thunderbird version
+  debug:
+    msg: "{{ thunderbird_version.stdout }}"
+  when: 
+    - package_state == 'present'
+    - thunderbird_version.rc == 0

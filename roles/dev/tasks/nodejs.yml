@@ -1,10 +1,63 @@
 ---
 # Node.js development setup
-- name: Install/Remove Node.js and npm
+# Following the pattern from roles/infra/tasks/docker.yml
+
+- name: Install prerequisites for NodeSource repository
+  package:
+    name:
+      - ca-certificates
+      - curl
+      - gpg
+    state: present
+  become: true
+  when: package_state == 'present'
+
+- name: Create keyrings directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+  become: true
+  when: package_state == 'present'
+
+- name: Download NodeSource GPG key
+  get_url:
+    url: https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key
+    dest: /tmp/nodesource-repo.gpg.key
+    mode: "0644"
+  become: true
+  when: package_state == 'present'
+  tags:
+    - downloads
+    - slow
+    - never
+
+- name: Dearmor NodeSource GPG key
+  command: gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg /tmp/nodesource-repo.gpg.key
+  args:
+    creates: /etc/apt/keyrings/nodesource.gpg
+  become: true
+  when: package_state == 'present'
+
+- name: Remove conflicting repository file
+  file:
+    path: /etc/apt/sources.list.d/nodesource.list
+    state: absent
+  become: true
+  when: package_state == 'present'
+
+- name: Add NodeSource repository
+  apt_repository:
+    repo: "deb [arch={{ ansible_architecture | replace('x86_64', 'amd64') }} signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main"
+    state: present
+    filename: nodesource
+  become: true
+  when: package_state == 'present'
+
+- name: Install/Remove Node.js
   package:
     name:
       - nodejs
-      - npm
     state: "{{ package_state }}"
   become: true
 
@@ -15,5 +68,22 @@
     global: yes
   loop:
     - "@anthropic-ai/claude-code"
+    - "@google/gemini-cli"
   become: true
   when: package_state == 'present'
+
+
+- name: Remove NodeSource repository
+  apt_repository:
+    repo: "deb [arch={{ ansible_architecture | replace('x86_64', 'amd64') }} signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main"
+    state: absent
+    filename: nodesource
+  become: true
+  when: package_state == 'absent'
+
+- name: Remove NodeSource GPG key
+  file:
+    path: /etc/apt/keyrings/nodesource.gpg
+    state: absent
+  become: true
+  when: package_state == 'absent'

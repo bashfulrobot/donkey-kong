@@ -1,0 +1,60 @@
+---
+# Firefox management
+
+- name: Check if Firefox is installed
+  command: dpkg -l firefox
+  register: firefox_check
+  failed_when: false
+  changed_when: false
+
+- name: Install Firefox
+  package:
+    name: firefox
+    state: present
+  become: true
+  when: 
+    - package_state == 'present'
+    - firefox_check.rc != 0
+
+- name: Remove Firefox and related packages
+  block:
+    - name: Remove Firefox packages
+      package:
+        name:
+          - firefox
+          - firefox-locale-en
+        state: absent
+        autoremove: yes
+      become: true
+
+    - name: Remove Firefox snap if present
+      snap:
+        name: firefox
+        state: absent
+      become: true
+      ignore_errors: yes
+
+    - name: Clean up Firefox configuration directories
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ user_home }}/.mozilla"
+        - "{{ user_home }}/.cache/mozilla"
+      when: user_home is defined
+
+  when: package_state == 'absent'
+
+- name: Verify Firefox installation/removal
+  command: firefox --version
+  register: firefox_version
+  failed_when: false
+  changed_when: false
+  when: package_state == 'present'
+
+- name: Display Firefox version
+  debug:
+    msg: "{{ firefox_version.stdout }}"
+  when: 
+    - package_state == 'present'
+    - firefox_version.rc == 0

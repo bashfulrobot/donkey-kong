@@ -7,6 +7,7 @@ core_packages:
   - build-essential
   - ansible
   - just
+  - jq
 
 sys_packages:
   - htop
@@ -25,6 +26,4 @@ dev_packages:
 infra_packages:
   - ansible
 
-offcoms_packages:
-  - firefox
-  - thunderbird
+offcoms_packages: []

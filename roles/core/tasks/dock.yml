@@ -1,0 +1,17 @@
+---
+# GNOME dock management
+
+- name: Define dock applications
+  set_fact:
+    dock_favorites:
+      - chromium.desktop
+      - slack.desktop
+      - org.gnome.Terminal.desktop
+      - code.desktop
+
+- name: Configure GNOME dock favorites
+  community.general.dconf:
+    key: "/org/gnome/shell/favorite-apps"
+    value: "{{ dock_favorites }}"
+    state: "{{ 'present' if package_state == 'present' else 'absent' }}"
+  become_user: "{{ user_name }}"

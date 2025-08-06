@@ -9,6 +9,13 @@
     - ../vars/configs.yml
     - ../vars/secrets.yml
 
+  pre_tasks:
+    - name: Remove conflicting nodesource repository file
+      file:
+        path: /etc/apt/sources.list.d/nodesource.list
+        state: absent
+      become: true
+
   roles:
     - role: core
       tags: core

@@ -1,12 +1,23 @@
 ---
 # Offcoms suite - orchestrates all office/communications tasks
+
 - name: Offcoms - General applications
   include_tasks: general.yml
 
 - name: Offcoms - Slack installation
   include_tasks: slack.yml
 
-# Additional office/communications configuration files can be added as needed:
-# - browsers.yml (browser configuration)
-# - communications.yml (communication apps)
-# - office.yml (office suites)
+- name: Offcoms - Chromium installation
+  include_tasks: chromium.yml
+
+- name: Offcoms - Firefox management
+  include_tasks: firefox.yml
+
+- name: Offcoms - Thunderbird email client
+  include_tasks: thunderbird.yml
+
+- name: Offcoms - 1Password password manager
+  include_tasks: 1password.yml
+
+- name: Offcoms - Zoom video conferencing
+  include_tasks: zoom.yml

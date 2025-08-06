@@ -1,9 +1,5 @@
 ---
 # Sys suite - orchestrates all system configuration
+
 - name: Sys - General system packages
   include_tasks: general.yml
-
-# Additional system configuration files can be added as needed:
-# - network.yml (network configuration)
-# - security.yml (security hardening)
-# - performance.yml (performance tuning)
