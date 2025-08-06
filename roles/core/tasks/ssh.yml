@@ -6,17 +6,7 @@
     state: directory
     mode: '0700'
 
-- name: Deploy SSH private key for GitHub
-  copy:
-    content: "{{ ssh_keys.github_private_key }}"
-    dest: "{{ user_home }}/.ssh/github_id_rsa"
-    mode: '0600'
-  when: ssh_keys.github_private_key is defined
-  no_log: true
-
-- name: Generate SSH public key from private key
-  shell: ssh-keygen -y -f "{{ user_home }}/.ssh/github_id_rsa" > "{{ user_home }}/.ssh/github_id_rsa.pub"
-  when: ssh_keys.github_private_key is defined
+# SSH keys are expected to already exist - no generation needed
   
 - name: Configure SSH for GitHub
   blockinfile:
