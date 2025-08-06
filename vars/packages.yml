@@ -1,0 +1,30 @@
+# Package definitions by category
+core_packages:
+  - curl
+  - wget
+  - git
+  - git-crypt
+  - build-essential
+
+sys_packages:
+  - htop
+  - tree
+  - unzip
+  - zip
+
+shell_packages:
+  - zsh
+  - tmux
+
+dev_packages:
+  - nodejs
+  - python3-pip
+  - golang-go
+
+infra_packages:
+  - docker.io
+  - ansible
+
+offcoms_packages:
+  - firefox
+  - thunderbird

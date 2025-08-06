@@ -1,0 +1,11 @@
+---
+# Development tools tasks
+- name: Install development packages
+  package:
+    name: "{{ dev_packages }}"
+    state: present
+  become: true
+
+- name: Configure development environment
+  debug:
+    msg: "Development environment tasks go here"

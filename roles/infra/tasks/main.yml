@@ -1,0 +1,11 @@
+---
+# Infrastructure tools tasks
+- name: Install infrastructure packages
+  package:
+    name: "{{ infra_packages }}"
+    state: present
+  become: true
+
+- name: Configure infrastructure tools
+  debug:
+    msg: "Infrastructure tools tasks go here"

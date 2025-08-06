@@ -1,0 +1,11 @@
+---
+# Office and communications tasks
+- name: Install office/communications packages
+  package:
+    name: "{{ offcoms_packages }}"
+    state: present
+  become: true
+
+- name: Configure applications
+  debug:
+    msg: "Office and communications tasks go here"

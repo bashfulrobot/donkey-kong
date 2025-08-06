@@ -1,0 +1,29 @@
+# Vault password file - never commit this!
+vars/vault_password.txt
+
+# Temporary decrypted secrets (if any)
+vars/secrets.yml.tmp
+vars/secrets.yml.backup
+
+# Ansible retry files
+*.retry
+
+# Local temporary files
+.ansible/
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

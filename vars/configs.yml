@@ -1,0 +1,10 @@
+# Configuration settings
+git_config:
+  user_name: ""
+  user_email: ""
+  
+shell_config:
+  default_shell: "/bin/zsh"
+
+dev_config:
+  editor: "hx"

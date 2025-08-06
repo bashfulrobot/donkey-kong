@@ -1,0 +1,8 @@
+# Global variables for all hosts
+user_name: "{{ ansible_user_id }}"
+user_home: "{{ ansible_env.HOME }}"
+
+# Common directories
+dev_dir: "{{ user_home }}/dev"
+bin_dir: "{{ user_home }}/bin"
+config_dir: "{{ user_home }}/.config"

@@ -1,0 +1,11 @@
+---
+# System configuration tasks
+- name: Install system packages
+  package:
+    name: "{{ sys_packages }}"
+    state: present
+  become: true
+
+- name: Configure system settings
+  debug:
+    msg: "System configuration tasks go here"

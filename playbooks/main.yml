@@ -1,0 +1,24 @@
+---
+- name: Configure laptop
+  hosts: localhost
+  become: false
+  gather_facts: true
+
+  vars_files:
+    - ../vars/packages.yml
+    - ../vars/configs.yml
+    - ../vars/secrets.yml
+
+  roles:
+    - role: core
+      tags: core
+    - role: sys
+      tags: sys
+    - role: shell
+      tags: shell
+    - role: dev
+      tags: dev
+    - role: infra
+      tags: infra
+    - role: offcoms
+      tags: offcoms

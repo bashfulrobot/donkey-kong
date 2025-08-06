@@ -1,0 +1,11 @@
+---
+# Shell configuration tasks
+- name: Install shell packages
+  package:
+    name: "{{ shell_packages }}"
+    state: present
+  become: true
+
+- name: Configure shell
+  debug:
+    msg: "Shell configuration tasks go here"
