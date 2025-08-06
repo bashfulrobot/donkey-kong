@@ -1,0 +1,47 @@
+---
+# Fish shell 4.x installation and configuration
+
+- name: Add Fish shell 4.x PPA
+  apt_repository:
+    repo: 'ppa:fish-shell/release-4'
+    state: present
+  become: true
+
+- name: Update package lists after adding Fish PPA
+  apt:
+    update_cache: yes
+  become: true
+
+- name: Install/Remove Fish shell
+  package:
+    name: fish
+    state: "{{ package_state }}"
+  become: true
+
+- name: Set Fish as default shell
+  user:
+    name: "{{ user_name }}"
+    shell: /usr/bin/fish
+  become: true
+  when: package_state == 'present'
+
+- name: Set original shell when removing Fish
+  user:
+    name: "{{ user_name }}"
+    shell: "{{ shell_config.default_shell | default('/bin/bash') }}"
+  become: true
+  when: package_state == 'absent'
+
+- name: Create Fish config directory
+  file:
+    path: "{{ user_home }}/.config/fish"
+    state: directory
+    mode: '0755'
+  when: package_state == 'present'
+
+- name: Create Fish functions directory
+  file:
+    path: "{{ user_home }}/.config/fish/functions"
+    state: directory
+    mode: '0755'
+  when: package_state == 'present'

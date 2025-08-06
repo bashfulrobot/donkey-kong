@@ -1,10 +1,12 @@
 ---
 # Zsh configuration and setup
-- name: Set zsh as default shell
+- name: Set zsh as fallback shell (Fish is now default)
   user:
     name: "{{ user_name }}"
-    shell: "{{ shell_config.default_shell }}"
+    shell: "{{ shell_config.fallback_shell }}"
   become: true
-  when: shell_config.default_shell is defined
+  when: 
+    - shell_config.fallback_shell is defined
+    - package_state == 'absent'  # Only when removing Fish
 
 # Oh My Zsh and other zsh frameworks can be installed as needed

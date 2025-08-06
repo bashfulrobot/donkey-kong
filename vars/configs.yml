@@ -4,7 +4,8 @@ git_config:
   user_email: "dustin@bashfulrobot.com"
   
 shell_config:
-  default_shell: "/bin/zsh"
+  default_shell: "/usr/bin/fish"
+  fallback_shell: "/bin/zsh"
 
 dev_config:
   editor: "hx"

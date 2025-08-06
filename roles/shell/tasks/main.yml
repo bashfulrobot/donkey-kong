@@ -3,6 +3,9 @@
 - name: Shell - General shell setup
   include_tasks: general.yml
 
+- name: Shell - Fish shell configuration
+  include_tasks: fish.yml
+
 - name: Shell - Zsh configuration
   include_tasks: zsh.yml
 

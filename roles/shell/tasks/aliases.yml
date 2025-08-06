@@ -26,3 +26,27 @@
   loop:
     - "{{ user_home }}/.bashrc"
     - "{{ user_home }}/.zshrc"
+
+- name: Create Fish shell aliases
+  copy:
+    dest: "{{ user_home }}/.config/fish/config.fish"
+    content: |
+      # Fish shell configuration
+      
+      # Common aliases  
+      alias ll='ls -alF'
+      alias la='ls -A'
+      alias l='ls -CF'
+      alias grep='grep --color=auto'
+      alias fgrep='fgrep --color=auto'
+      alias egrep='egrep --color=auto'
+      
+      # Modern replacements
+      alias cat='bat'
+      alias ls='eza'
+      alias find='fd'
+      
+      # Fish-specific settings
+      set -g fish_greeting ""
+    mode: '0644'
+  when: package_state == 'present'
