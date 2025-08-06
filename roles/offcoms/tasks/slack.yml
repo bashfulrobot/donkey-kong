@@ -1,38 +1,78 @@
 ---
-# Slack installation via snap (most reliable method)
-- name: Check if Slack snap is already installed
-  command: snap list slack
-  register: slack_snap_check
+# Slack installation using known working direct URL 
+- name: Check if Slack is already installed
+  command: dpkg -l slack-desktop
+  register: slack_check
   failed_when: false
   changed_when: false
 
-- name: DEBUG - Log Slack snap check result
+- name: DEBUG - Log Slack check result
   debug:
-    msg: "Slack snap check result: rc={{ slack_snap_check.rc }}, package_state={{ package_state }}"
+    msg: "Slack check result: rc={{ slack_check.rc }}, package_state={{ package_state }}"
 
-- name: Install Slack via snap
-  snap:
-    name: slack
-    classic: yes
-    state: present
-  become: yes
+- name: Slack installation block
+  block:
+    - name: Create temporary directory for Slack installation
+      tempfile:
+        state: directory
+        suffix: slack
+      register: slack_temp_dir
+
+    - name: Download Slack deb package from direct URL
+      get_url:
+        url: "https://downloads.slack-edge.com/releases/linux/4.40.126/prod/x64/slack-desktop-4.40.126-amd64.deb"
+        dest: "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
+        mode: '0644'
+        timeout: 60
+      register: slack_download
+      tags:
+        - downloads
+        - slow
+        - never
+
+    - name: DEBUG - Log download result
+      debug:
+        var: slack_download
+      tags:
+        - downloads
+        - slow
+        - never
+
+    - name: Install Slack deb package with dpkg
+      command: dpkg -i "{{ slack_download.dest }}"
+      become: yes
+      register: dpkg_result
+      failed_when: false
+
+    - name: DEBUG - Log dpkg result  
+      debug:
+        var: dpkg_result
+
+    - name: Fix broken dependencies if dpkg installation failed
+      command: apt-get install -f -y
+      become: yes
+      register: apt_fix_result
+      when: dpkg_result.rc != 0
+
+    - name: Clean up temporary directory
+      file:
+        path: "{{ slack_temp_dir.path }}"
+        state: absent
+      when: slack_temp_dir.path is defined
+
   when: 
     - package_state == 'present'
-    - slack_snap_check.rc != 0
-  tags:
-    - downloads
-    - slow
-    - never
+    - slack_check.rc != 0
 
-- name: Remove Slack snap
-  snap:
-    name: slack
+- name: Remove Slack
+  apt:
+    name: slack-desktop
     state: absent
   become: yes
   when: package_state == 'absent'
 
 - name: Verify Slack installation
-  command: snap list slack
+  command: dpkg -l slack-desktop
   register: slack_verify
   failed_when: false
   changed_when: false
