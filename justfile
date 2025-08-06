@@ -34,21 +34,33 @@ remove: check-vault-setup
 
 # Run specific tags
 dev: check-vault-setup
+    #!/usr/bin/env bash
+    echo "🔐 You will be prompted for your sudo password..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags dev --ask-become-pass
 
 infra: check-vault-setup
+    #!/usr/bin/env bash
+    echo "🔐 You will be prompted for your sudo password..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags infra --ask-become-pass
 
 offcoms: check-vault-setup
+    #!/usr/bin/env bash
+    echo "🔐 You will be prompted for your sudo password..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags offcoms --ask-become-pass
 
 shell: check-vault-setup
+    #!/usr/bin/env bash
+    echo "🔐 You will be prompted for your sudo password..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags shell --ask-become-pass
 
 sys: check-vault-setup
+    #!/usr/bin/env bash
+    echo "🔐 You will be prompted for your sudo password..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags sys --ask-become-pass
 
 core: check-vault-setup
+    #!/usr/bin/env bash
+    echo "🔐 You will be prompted for your sudo password..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags core --ask-become-pass
 
 # Skip certain tags
