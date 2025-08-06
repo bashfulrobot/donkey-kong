@@ -21,7 +21,7 @@
 
     - name: Download XtraDeb PPA GPG key
       get_url:
-        url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x1378B444
+        url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x82BB6851C64F6880
         dest: /tmp/xtradeb.asc
         mode: '0644'
       become: true
@@ -31,6 +31,8 @@
 
     - name: Install XtraDeb GPG key
       command: gpg --dearmor -o /usr/share/keyrings/xtradeb.gpg /tmp/xtradeb.asc
+      args:
+        creates: /usr/share/keyrings/xtradeb.gpg
       become: true
 
     - name: Set permissions on XtraDeb GPG key
