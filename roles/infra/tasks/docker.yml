@@ -40,6 +40,10 @@
     mode: '0644'
   become: true
   when: package_state == 'present'
+  tags:
+    - downloads
+    - slow
+    - never
 
 - name: Add Docker repository
   apt_repository:

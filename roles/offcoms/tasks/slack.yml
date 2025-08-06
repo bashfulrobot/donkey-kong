@@ -8,31 +8,51 @@
 
 - name: Download Slack deb package (latest)
   get_url:
-    url: "https://downloads.slack-edge.com/desktop-releases/linux/x64/slack-desktop-amd64.deb"
+    url: "https://slack.com/downloads/instructions/linux?ddl=1&build=deb"
     dest: "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
     mode: '0644'
     follow_redirects: yes
     timeout: 30
   register: slack_download
+  tags: 
+    - downloads
+    - slow
+    - never
 
 - name: Install Slack deb package with dpkg
   command: dpkg -i "{{ slack_download.dest }}"
   become: yes
   register: dpkg_result
   failed_when: false
+  when: not slack_download is skipped
+  tags: 
+    - downloads
+    - slow
+    - never
 
 - name: Fix broken dependencies if dpkg installation failed
   apt:
     update_cache: yes
     fix_broken: yes
   become: yes
-  when: dpkg_result.rc != 0
+  when: 
+    - not slack_download is skipped
+    - dpkg_result.rc != 0
+  tags: 
+    - downloads
+    - slow
+    - never
 
 - name: Verify Slack installation
   command: dpkg -l slack-desktop
   register: slack_verify
   failed_when: false
   changed_when: false
+  when: not slack_download is skipped
+  tags: 
+    - downloads
+    - slow
+    - never
 
 - name: Clean up temporary directory
   file:

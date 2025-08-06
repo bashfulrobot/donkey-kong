@@ -15,8 +15,12 @@ check-vault-setup:
     fi
     echo "✅ Vault password file is configured"
 
-# Run full build
+# Run full build (skips downloads/slow operations by default)
 build: check-vault-setup
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --ask-become-pass --skip-tags "never"
+
+# Run full build including downloads and slow operations
+build-all: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --ask-become-pass
 
 # Remove all installed packages and configs
@@ -68,8 +72,16 @@ remove-infra: check-vault-setup
 remove-offcoms: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags offcoms --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
 
-# Dry run checks
+# Run only downloads and slow operations
+downloads: check-vault-setup
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --ask-become-pass --tags "downloads,slow"
+
+# Dry run checks (skips downloads/slow operations by default)
 check: check-vault-setup
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --ask-become-pass --skip-tags "never"
+
+# Dry run including downloads and slow operations
+check-all: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --ask-become-pass
 
 check-dev: check-vault-setup
