@@ -19,4 +19,9 @@
     backup: yes
   become: true
 
+- name: Set timezone to Vancouver PST
+  timezone:
+    name: America/Vancouver
+  become: true
+
 # Additional system utilities can be installed as needed
