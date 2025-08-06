@@ -14,23 +14,12 @@
         suffix: slack
       register: slack_temp_dir
 
-    - name: Get actual Slack download URL by following redirect
-      uri:
-        url: "https://slack.com/downloads/instructions/linux?ddl=1&build=deb"
-        method: HEAD
-        follow_redirects: yes
-        status_code: [200, 302, 301]
-      register: slack_redirect
-      tags:
-        - downloads
-        - slow
-        - never
-
-    - name: Download Slack deb package from redirect URL
+    - name: Download Slack deb package (follows redirects automatically)
       get_url:
-        url: "{{ slack_redirect.url }}"
+        url: "https://slack.com/downloads/instructions/linux?ddl=1&build=deb"
         dest: "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
         mode: '0644'
+        follow_redirects: yes
         timeout: 60
       register: slack_download
       tags:
