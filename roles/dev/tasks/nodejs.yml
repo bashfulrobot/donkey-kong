@@ -72,6 +72,11 @@
   become: true
   when: package_state == 'present'
 
+- name: Fix Claude Code npm permissions for auto-updates
+  shell: chown -R {{ user_name }}:$(id -gn {{ user_name }}) $(npm -g config get prefix)
+  become: true
+  when: package_state == 'present'
+
 
 - name: Remove NodeSource repository
   apt_repository:

@@ -11,3 +11,6 @@
 
 - name: Shell - Aliases and functions
   include_tasks: aliases.yml
+
+- name: Shell - Alacritty terminal emulator
+  include_tasks: alacritty.yml

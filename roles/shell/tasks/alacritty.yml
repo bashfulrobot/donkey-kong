@@ -1,0 +1,35 @@
+---
+# Alacritty terminal emulator installation and configuration
+
+- name: Add Alacritty PPA
+  apt_repository:
+    repo: 'ppa:aslatter/ppa'
+    state: present
+  become: true
+
+- name: Update package lists after adding Alacritty PPA
+  apt:
+    update_cache: yes
+  become: true
+
+- name: Install/Remove Alacritty
+  package:
+    name: alacritty
+    state: "{{ package_state }}"
+  become: true
+
+- name: Set Alacritty as default terminal
+  alternatives:
+    name: x-terminal-emulator
+    path: /usr/bin/alacritty
+    link: /usr/bin/x-terminal-emulator
+    priority: 100
+  become: true
+  when: package_state == 'present'
+
+- name: Create Alacritty config directory
+  file:
+    path: "{{ user_home }}/.config/alacritty"
+    state: directory
+    mode: '0755'
+  when: package_state == 'present'
