@@ -1,5 +1,5 @@
 ---
-# Slack installation via official method - dynamically get latest version
+# Slack installation by following redirect to get actual download URL
 - name: Check if Slack is already installed
   command: dpkg -l slack-desktop
   register: slack_check
@@ -8,42 +8,54 @@
 
 - name: Slack installation block
   block:
-    - name: Create keyring directory
-      file:
-        path: /etc/apt/keyrings
+    - name: Create temporary directory for Slack installation
+      tempfile:
         state: directory
-        mode: '0755'
-      become: yes
+        suffix: slack
+      register: slack_temp_dir
 
-    - name: Download Slack GPG key
-      get_url:
-        url: "https://packagecloud.io/slacktechnologies/slack/gpgkey"
-        dest: "/etc/apt/keyrings/slack.asc"
-        mode: '0644'
-      become: yes
-      tags:
-        - downloads
-        - slow  
-        - never
-
-    - name: Add Slack repository
-      apt_repository:
-        repo: "deb [signed-by=/etc/apt/keyrings/slack.asc] https://packagecloud.io/slacktechnologies/slack/ubuntu/ {{ ansible_distribution_release }} main"
-        state: present
-      become: yes
-      when: package_state == 'present'
+    - name: Get actual Slack download URL by following redirect
+      uri:
+        url: "https://slack.com/downloads/instructions/linux?ddl=1&build=deb"
+        method: HEAD
+        follow_redirects: yes
+        status_code: [200, 302, 301]
+      register: slack_redirect
       tags:
         - downloads
         - slow
         - never
 
-    - name: Install Slack from repository
-      apt:
-        name: slack-desktop
-        state: present
-        update_cache: yes
+    - name: Download Slack deb package from redirect URL
+      get_url:
+        url: "{{ slack_redirect.url }}"
+        dest: "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
+        mode: '0644'
+        timeout: 60
+      register: slack_download
+      tags:
+        - downloads
+        - slow
+        - never
+
+    - name: Install Slack deb package with dpkg
+      command: dpkg -i "{{ slack_download.dest }}"
       become: yes
-      when: package_state == 'present'
+      register: dpkg_result
+      failed_when: false
+
+    - name: Fix broken dependencies if dpkg installation failed
+      apt:
+        update_cache: yes
+        fix_broken: yes
+      become: yes
+      when: dpkg_result.rc != 0
+
+    - name: Clean up temporary directory
+      file:
+        path: "{{ slack_temp_dir.path }}"
+        state: absent
+      when: slack_temp_dir.path is defined
 
   when: 
     - package_state == 'present'
@@ -52,13 +64,6 @@
 - name: Remove Slack
   apt:
     name: slack-desktop
-    state: absent
-  become: yes
-  when: package_state == 'absent'
-
-- name: Remove Slack repository
-  apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/slack.asc] https://packagecloud.io/slacktechnologies/slack/ubuntu/ {{ ansible_distribution_release }} main"
     state: absent
   become: yes
   when: package_state == 'absent'
