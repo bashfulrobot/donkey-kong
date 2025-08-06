@@ -6,4 +6,17 @@
     state: present
   become: true
 
+- name: Set hostname to donkey-kong
+  hostname:
+    name: donkey-kong
+  become: true
+
+- name: Update /etc/hosts with new hostname
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: '127.0.1.1 donkey-kong'
+    backup: yes
+  become: true
+
 # Additional system utilities can be installed as needed

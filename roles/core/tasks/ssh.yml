@@ -1,5 +1,19 @@
 ---
 # SSH configuration and key management
+
+- name: Install SSH server
+  package:
+    name: openssh-server
+    state: present
+  become: true
+
+- name: Start and enable SSH service
+  service:
+    name: ssh
+    state: started
+    enabled: yes
+  become: true
+
 - name: Ensure .ssh directory exists
   file:
     path: "{{ user_home }}/.ssh"
@@ -7,6 +21,24 @@
     mode: '0700'
 
 # SSH keys are expected to already exist - no generation needed
+
+- name: Fetch SSH public keys from GitHub
+  uri:
+    url: "https://github.com/{{ git_config.user_name }}.keys"
+    return_content: yes
+  register: github_keys
+  when: git_config.user_name is defined and git_config.user_name != ""
+
+- name: Install GitHub SSH public keys for login
+  authorized_key:
+    user: "{{ user_name }}"
+    key: "{{ github_keys.content }}"
+    comment: "GitHub SSH keys for {{ git_config.user_name }}"
+    state: present
+  when: 
+    - git_config.user_name is defined and git_config.user_name != ""
+    - github_keys.content is defined
+    - github_keys.content != ""
   
 - name: Configure SSH for GitHub
   blockinfile:
