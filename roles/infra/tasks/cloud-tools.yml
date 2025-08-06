@@ -1,0 +1,23 @@
+---
+# Cloud tools installation via snap and other methods
+
+- name: Install/Remove AWS CLI via snap
+  snap:
+    name: aws-cli
+    classic: yes
+    state: "{{ package_state }}"
+  become: true
+
+- name: Verify AWS CLI installation
+  command: aws --version
+  register: aws_version
+  failed_when: false
+  changed_when: false
+  when: package_state == 'present'
+
+- name: Display AWS CLI version
+  debug:
+    msg: "{{ aws_version.stdout }}"
+  when: 
+    - package_state == 'present'
+    - aws_version.rc == 0
