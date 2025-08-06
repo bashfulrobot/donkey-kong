@@ -6,8 +6,5 @@
     state: directory
     mode: '0755'
 
-- name: Deploy tmux configuration
-  template:
-    src: tmux.conf.j2
-    dest: "{{ user_home }}/.tmux.conf"
-    mode: '0644'
+# Tmux configuration template removed - add manually if needed
+# Template was referencing non-existent tmux.conf.j2
