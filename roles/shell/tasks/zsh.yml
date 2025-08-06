@@ -7,8 +7,4 @@
   become: true
   when: shell_config.default_shell is defined
 
-- name: Install Oh My Zsh
-  shell: sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-  args:
-    creates: "{{ user_home }}/.oh-my-zsh"
-  become_user: "{{ user_name }}"
+# Oh My Zsh and other zsh frameworks can be installed as needed

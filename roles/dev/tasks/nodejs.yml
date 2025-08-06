@@ -13,11 +13,5 @@
     name: "{{ item }}"
     global: yes
   loop:
-    - yarn
-    - typescript
-    - "@typescript-eslint/parser"
-    - "@typescript-eslint/eslint-plugin"
-    - eslint
-    - prettier
     - "@anthropic-ai/claude-code"
   become: true

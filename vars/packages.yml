@@ -5,6 +5,8 @@ core_packages:
   - git
   - git-crypt
   - build-essential
+  - ansible
+  - just
 
 sys_packages:
   - htop

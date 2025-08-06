@@ -1,0 +1,54 @@
+---
+# Custom tool installations that aren't available via apt
+
+- name: Install helix editor
+  block:
+    - name: Check if helix is already installed
+      command: which hx
+      register: helix_check
+      failed_when: false
+      changed_when: false
+
+    - name: Get latest Helix version
+      uri:
+        url: "https://api.github.com/repos/helix-editor/helix/releases/latest"
+        return_content: yes
+      register: helix_release
+      when: helix_check.rc != 0
+
+    - name: Download and install Helix
+      block:
+        - name: Download Helix release
+          get_url:
+            url: "https://github.com/helix-editor/helix/releases/latest/download/helix-{{ helix_release.json.tag_name }}-x86_64-linux.tar.xz"
+            dest: "/tmp/helix.tar.xz"
+            mode: '0644'
+
+        - name: Create installation directory
+          file:
+            path: /opt/helix
+            state: directory
+            mode: '0755'
+          become: true
+
+        - name: Extract Helix
+          unarchive:
+            src: "/tmp/helix.tar.xz"
+            dest: /opt/helix
+            extra_opts: [--strip-components=1]
+            remote_src: yes
+          become: true
+
+        - name: Create symbolic link for hx
+          file:
+            src: /opt/helix/hx
+            dest: /usr/local/bin/hx
+            state: link
+          become: true
+
+        - name: Clean up download
+          file:
+            path: "/tmp/helix.tar.xz"
+            state: absent
+
+      when: helix_check.rc != 0

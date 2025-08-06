@@ -6,12 +6,4 @@
     state: present
   become: true
 
-- name: Install additional productivity tools
-  package:
-    name:
-      - libreoffice
-      - gimp
-      - vlc
-      - audacity
-    state: present
-  become: true
+# Additional productivity tools can be installed as needed

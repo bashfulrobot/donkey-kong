@@ -3,6 +3,9 @@
 - name: Core - General package installations
   include_tasks: general.yml
 
+- name: Core - Custom tools installation
+  include_tasks: custom-tools.yml
+
 - name: Core - Git configuration
   include_tasks: git.yml
   

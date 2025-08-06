@@ -10,13 +10,4 @@
     state: present
   become: true
 
-- name: Install common Python development tools via pipx
-  pipx:
-    name: "{{ item }}"
-  loop:
-    - black
-    - flake8
-    - mypy
-    - pytest
-    - poetry
-  become_user: "{{ user_name }}"
+# Python development tools can be installed as needed per project

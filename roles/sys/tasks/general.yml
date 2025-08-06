@@ -6,14 +6,4 @@
     state: present
   become: true
 
-- name: Install additional system utilities
-  package:
-    name:
-      - neofetch
-      - lsof
-      - strace
-      - tcpdump
-      - iotop
-      - nmon
-    state: present
-  become: true
+# Additional system utilities can be installed as needed
