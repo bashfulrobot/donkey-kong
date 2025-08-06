@@ -1,130 +1,38 @@
 ---
-# Slack installation by following redirect to get actual download URL
-- name: Check if Slack is already installed
-  command: dpkg -l slack-desktop
-  register: slack_check
+# Slack installation via snap (most reliable method)
+- name: Check if Slack snap is already installed
+  command: snap list slack
+  register: slack_snap_check
   failed_when: false
   changed_when: false
 
-- name: DEBUG - Log Slack check result
+- name: DEBUG - Log Slack snap check result
   debug:
-    msg: "Slack check result: rc={{ slack_check.rc }}, package_state={{ package_state }}"
+    msg: "Slack snap check result: rc={{ slack_snap_check.rc }}, package_state={{ package_state }}"
 
-- name: Slack installation block
-  block:
-    - name: Create temporary directory for Slack installation
-      tempfile:
-        state: directory
-        suffix: slack
-      register: slack_temp_dir
-
-    - name: Get actual Slack download URL using curl redirect following
-      command: >
-        curl -Ls -o /dev/null -w "%{url_effective}" 
-        "https://slack.com/downloads/instructions/linux?ddl=1&build=deb"
-      register: slack_url_resolve
-      tags:
-        - downloads
-        - slow
-        - never
-
-    - name: DEBUG - Log resolved URL
-      debug:
-        msg: "Resolved Slack download URL: {{ slack_url_resolve.stdout }}"
-      tags:
-        - downloads
-        - slow
-        - never
-
-    - name: Download Slack deb package from resolved URL
-      command: >
-        curl -L -o "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb" 
-        "{{ slack_url_resolve.stdout }}"
-      register: slack_download
-      when: slack_url_resolve.rc == 0
-      tags:
-        - downloads
-        - slow
-        - never
-
-    - name: Check downloaded file size and type
-      stat:
-        path: "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
-      register: slack_file_check
-      when: slack_download.rc == 0
-      tags:
-        - downloads
-        - slow
-        - never
-
-    - name: DEBUG - Log download result
-      debug:
-        var: slack_download
-      when: slack_download is defined
-      tags:
-        - downloads
-        - slow
-        - never
-
-    - name: DEBUG - Log file info after download
-      debug:
-        var: slack_file_check
-      when: slack_download.rc == 0
-      tags:
-        - downloads
-        - slow
-        - never
-
-    - name: Install Slack deb package with dpkg
-      command: dpkg -i "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
-      become: yes
-      register: dpkg_result
-      failed_when: false
-      when: slack_download.rc == 0
-
-    - name: DEBUG - Log dpkg result
-      debug:
-        var: dpkg_result
-      when: slack_download.rc == 0
-
-    - name: Fix broken dependencies if dpkg installation failed
-      command: apt-get install -f -y
-      become: yes
-      register: apt_fix_result
-      when: 
-        - slack_download.rc == 0
-        - dpkg_result.rc != 0
-
-    - name: DEBUG - Log apt fix result
-      debug:
-        var: apt_fix_result
-      when: 
-        - slack_download.rc == 0
-        - dpkg_result.rc != 0
-
-    - name: Clean up temporary directory
-      file:
-        path: "{{ slack_temp_dir.path }}"
-        state: absent
-      when: slack_temp_dir.path is defined
-
+- name: Install Slack via snap
+  snap:
+    name: slack
+    classic: yes
+    state: present
+  become: yes
   when: 
     - package_state == 'present'
-    - slack_check.rc != 0
+    - slack_snap_check.rc != 0
+  tags:
+    - downloads
+    - slow
+    - never
 
-- name: DEBUG - Log block execution conditions
-  debug:
-    msg: "Block executed: package_state={{ package_state }}, slack_check.rc={{ slack_check.rc }}, condition_met={{ (package_state == 'present') and (slack_check.rc != 0) }}"
-
-- name: Remove Slack
-  apt:
-    name: slack-desktop
+- name: Remove Slack snap
+  snap:
+    name: slack
     state: absent
   become: yes
   when: package_state == 'absent'
 
 - name: Verify Slack installation
-  command: dpkg -l slack-desktop
+  command: snap list slack
   register: slack_verify
   failed_when: false
   changed_when: false
