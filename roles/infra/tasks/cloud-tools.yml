@@ -2,12 +2,51 @@
 # Cloud tools installation via snap (when no apt alternative available)
 # AWS CLI is only available as snap, not via apt
 
-- name: Install/Remove AWS CLI via snap
+- name: Check if AWS CLI snap is already installed
+  command: snap list aws-cli
+  register: aws_cli_check
+  failed_when: false
+  changed_when: false
+  when: package_state == 'present'
+
+- name: Install AWS CLI via snap (with timeout)
   snap:
     name: aws-cli
     classic: yes
-    state: "{{ package_state }}"
+    state: present
   become: true
+  async: 300  # 5 minute timeout
+  poll: 10    # Check every 10 seconds
+  register: aws_install_result
+  when: 
+    - package_state == 'present'
+    - aws_cli_check.rc != 0
+
+- name: Display snap installation progress
+  debug:
+    msg: "AWS CLI snap installation in progress... This may take several minutes on first install."
+  when: 
+    - package_state == 'present'
+    - aws_cli_check.rc != 0
+
+- name: Wait for AWS CLI snap installation to complete
+  async_status:
+    jid: "{{ aws_install_result.ansible_job_id }}"
+  register: aws_install_status
+  until: aws_install_status.finished
+  retries: 30  # 30 retries * 10 seconds = 5 minutes max
+  delay: 10
+  when: 
+    - package_state == 'present'
+    - aws_cli_check.rc != 0
+    - aws_install_result.ansible_job_id is defined
+
+- name: Remove AWS CLI via snap
+  snap:
+    name: aws-cli
+    state: absent
+  become: true
+  when: package_state == 'absent'
 
 - name: Verify AWS CLI installation
   command: aws --version
@@ -18,7 +57,15 @@
 
 - name: Display AWS CLI version
   debug:
-    msg: "{{ aws_version.stdout }}"
+    msg: "✅ {{ aws_version.stdout }}"
   when: 
     - package_state == 'present'
     - aws_version.rc == 0
+
+- name: Display installation failure warning
+  debug:
+    msg: "⚠️ AWS CLI installation may have failed or timed out. Try running 'sudo snap install aws-cli --classic' manually."
+  when: 
+    - package_state == 'present'
+    - aws_version is defined
+    - aws_version.rc != 0
