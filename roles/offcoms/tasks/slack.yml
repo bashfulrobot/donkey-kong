@@ -18,11 +18,24 @@
         suffix: slack
       register: slack_temp_dir
 
-    - name: Download Slack deb package using curl (follows redirects properly)
+    - name: Download Slack deb package using direct download URL
       command: >
         curl -L -o "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb" 
-        "https://slack.com/downloads/instructions/linux?ddl=1&build=deb"
+        "https://downloads.slack-edge.com/releases/linux/4.40.126/prod/x64/slack-desktop-4.40.126-amd64.deb"
       register: slack_download
+      failed_when: false
+      tags:
+        - downloads
+        - slow
+        - never
+
+    - name: Fallback - try alternative download method if direct URL fails
+      command: >
+        curl -L -o "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
+        -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+        "https://slack.com/downloads/instructions/linux?ddl=1&build=deb"
+      register: slack_download_fallback
+      when: slack_download.rc != 0
       tags:
         - downloads
         - slow
@@ -32,7 +45,7 @@
       stat:
         path: "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
       register: slack_file_check
-      when: slack_download.rc == 0
+      when: (slack_download.rc == 0) or (slack_download_fallback.rc == 0 if slack_download_fallback is defined else false)
       tags:
         - downloads
         - slow
@@ -46,10 +59,19 @@
         - slow
         - never
 
+    - name: DEBUG - Log fallback download result
+      debug:
+        var: slack_download_fallback
+      when: slack_download_fallback is defined
+      tags:
+        - downloads
+        - slow
+        - never
+
     - name: DEBUG - Log file info after download
       debug:
         var: slack_file_check
-      when: slack_download.rc == 0
+      when: (slack_download.rc == 0) or (slack_download_fallback.rc == 0 if slack_download_fallback is defined else false)
       tags:
         - downloads
         - slow
@@ -60,26 +82,26 @@
       become: yes
       register: dpkg_result
       failed_when: false
-      when: slack_download.rc == 0
+      when: (slack_download.rc == 0) or (slack_download_fallback.rc == 0 if slack_download_fallback is defined else false)
 
     - name: DEBUG - Log dpkg result
       debug:
         var: dpkg_result
-      when: slack_download.rc == 0
+      when: (slack_download.rc == 0) or (slack_download_fallback.rc == 0 if slack_download_fallback is defined else false)
 
     - name: Fix broken dependencies if dpkg installation failed
       command: apt-get install -f -y
       become: yes
       register: apt_fix_result
       when: 
-        - slack_download.rc == 0
+        - (slack_download.rc == 0) or (slack_download_fallback.rc == 0 if slack_download_fallback is defined else false)
         - dpkg_result.rc != 0
 
     - name: DEBUG - Log apt fix result
       debug:
         var: apt_fix_result
       when: 
-        - slack_download.rc == 0
+        - (slack_download.rc == 0) or (slack_download_fallback.rc == 0 if slack_download_fallback is defined else false)
         - dpkg_result.rc != 0
 
     - name: Clean up temporary directory
