@@ -43,13 +43,16 @@
       become: yes
       register: dpkg_result
       failed_when: false
+      when: slack_download is defined
 
     - name: Fix broken dependencies if dpkg installation failed
       apt:
         update_cache: yes
         fix_broken: yes
       become: yes
-      when: dpkg_result.rc != 0
+      when: 
+        - slack_download is defined
+        - dpkg_result.rc != 0
 
     - name: Clean up temporary directory
       file:
