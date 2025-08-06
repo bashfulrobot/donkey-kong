@@ -28,7 +28,7 @@
 
     - name: Add Slack repository
       apt_repository:
-        repo: "deb [signed-by=/etc/apt/keyrings/slack.asc] https://packagecloud.io/slacktechnologies/slack/debian/ jessie main"
+        repo: "deb [signed-by=/etc/apt/keyrings/slack.asc] https://packagecloud.io/slacktechnologies/slack/ubuntu/ {{ ansible_distribution_release }} main"
         state: present
       become: yes
       when: package_state == 'present'
@@ -58,7 +58,7 @@
 
 - name: Remove Slack repository
   apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/slack.asc] https://packagecloud.io/slacktechnologies/slack/debian/ jessie main"
+    repo: "deb [signed-by=/etc/apt/keyrings/slack.asc] https://packagecloud.io/slacktechnologies/slack/ubuntu/ {{ ansible_distribution_release }} main"
     state: absent
   become: yes
   when: package_state == 'absent'
