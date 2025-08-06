@@ -42,6 +42,23 @@ update_packages() {
     log_success "Package lists updated"
 }
 
+# Update system packages to latest within same major release
+upgrade_system() {
+    log_info "Upgrading system packages to latest versions..."
+    log_warning "This may take several minutes depending on available updates..."
+    
+    # Upgrade all packages while keeping current release
+    sudo apt upgrade -y
+    
+    # Remove unnecessary packages
+    sudo apt autoremove -y
+    
+    # Clean package cache
+    sudo apt autoclean
+    
+    log_success "System packages updated successfully"
+}
+
 # Install curl
 install_curl() {
     if command -v curl &> /dev/null; then
@@ -162,6 +179,7 @@ main() {
     
     check_ubuntu_version
     update_packages
+    upgrade_system
     install_curl
     install_git
     install_git_crypt
