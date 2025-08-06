@@ -18,9 +18,9 @@
         suffix: slack
       register: slack_temp_dir
 
-    - name: Download Slack deb package using wget (follows redirects properly)
+    - name: Download Slack deb package using curl (follows redirects properly)
       command: >
-        wget -O "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb" 
+        curl -L -o "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb" 
         "https://slack.com/downloads/instructions/linux?ddl=1&build=deb"
       register: slack_download
       tags:
