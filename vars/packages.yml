@@ -8,6 +8,7 @@ core_packages:
   - ansible
   - just
   - jq
+  - python3-psutil
 
 sys_packages:
   - htop
