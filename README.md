@@ -200,8 +200,11 @@ just remove
 just check -e "package_state=absent"
 ```
 
+### How Package Groups Work
+Package removal uses an **"all or nothing"** approach - removing a component uninstalls ALL packages in that group. This keeps the system simple and predictable.
+
 ### What Gets Removed
-- **Packages**: Uninstalled via package manager
+- **Packages**: ALL packages in the selected group are uninstalled
 - **Services**: Stopped and disabled  
 - **Global npm packages**: Uninstalled (when removing dev tools)
 - **Some configs**: Removed when config_state=absent
@@ -211,6 +214,29 @@ just check -e "package_state=absent"
 - Manual configurations you've made
 - Dependencies installed by other packages
 - System packages that other software depends on
+
+### Selective Package Removal Workflow
+To remove individual packages from a group while keeping others:
+
+1. **Remove the entire group**: `just remove-shell`
+2. **Edit the package list**: Remove unwanted packages from the appropriate file:
+   - Core packages: `vars/packages.yml` 
+   - Additional tools: `roles/*/tasks/general.yml`
+3. **Reinstall the group**: `just shell`
+
+**Example - Remove `bat` from shell tools:**
+```bash
+# 1. Remove all shell tools
+just remove-shell
+
+# 2. Edit roles/shell/tasks/general.yml and remove 'bat' from the list
+hx roles/shell/tasks/general.yml
+
+# 3. Reinstall shell tools (now without bat)
+just shell
+```
+
+This keeps the configuration simple while allowing selective removal when needed.
 
 ## Vault Management
 
