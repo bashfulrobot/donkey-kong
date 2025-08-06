@@ -19,39 +19,8 @@
         state: present
       become: true
 
-    - name: Download XtraDeb PPA GPG key
-      get_url:
-        url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x82BB6851C64F6880
-        dest: /tmp/xtradeb.asc
-        mode: '0644'
-      become: true
-      tags:
-        - downloads
-        - slow
-
-    - name: Install XtraDeb GPG key
-      command: gpg --dearmor -o /usr/share/keyrings/xtradeb.gpg /tmp/xtradeb.asc
-      args:
-        creates: /usr/share/keyrings/xtradeb.gpg
-      become: true
-
-    - name: Set permissions on XtraDeb GPG key
-      file:
-        path: /usr/share/keyrings/xtradeb.gpg
-        mode: '0644'
-      become: true
-
-    - name: Add XtraDeb PPA for Chromium with proper GPG key
-      apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/xtradeb.gpg] https://ppa.launchpadcontent.net/xtradeb/apps/ubuntu {{ ansible_distribution_release }} main"
-        state: present
-        filename: xtradeb
-      become: true
-
-    - name: Clean up temporary GPG key file
-      file:
-        path: /tmp/xtradeb.asc
-        state: absent
+    - name: Add XtraDeb PPA for Chromium
+      shell: add-apt-repository -y ppa:xtradeb/apps
       become: true
       register: ppa_result
 
@@ -93,17 +62,9 @@
       become: true
 
     - name: Remove XtraDeb PPA
-      apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/xtradeb.gpg] https://ppa.launchpadcontent.net/xtradeb/apps/ubuntu {{ ansible_distribution_release }} main"
-        state: absent
-        filename: xtradeb
+      shell: add-apt-repository -y --remove ppa:xtradeb/apps
       become: true
-
-    - name: Remove XtraDeb GPG key
-      file:
-        path: /usr/share/keyrings/xtradeb.gpg
-        state: absent
-      become: true
+      failed_when: false
 
     - name: Update apt cache after removing repository
       apt:
