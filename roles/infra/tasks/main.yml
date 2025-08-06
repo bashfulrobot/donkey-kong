@@ -3,6 +3,9 @@
 - name: Infra - General infrastructure packages
   include_tasks: general.yml
 
+- name: Infra - Docker installation and configuration
+  include_tasks: docker.yml
+
 - name: Infra - Cloud CLI tools (snap-based when no apt alternative)
   include_tasks: cloud-tools.yml
 

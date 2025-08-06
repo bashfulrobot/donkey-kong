@@ -12,5 +12,4 @@
 - name: Dev - Go development setup
   include_tasks: golang.yml
 
-- name: Dev - Docker configuration
-  include_tasks: docker.yml
+# Docker moved to infra role - run 'just infra' for containerization tools

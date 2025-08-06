@@ -23,7 +23,6 @@ dev_packages:
   - golang-go
 
 infra_packages:
-  - docker.io
   - ansible
 
 offcoms_packages:

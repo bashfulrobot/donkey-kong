@@ -1,0 +1,113 @@
+---
+# Docker installation following official Docker documentation
+# https://docs.docker.com/engine/install/ubuntu/
+
+- name: Remove conflicting Docker packages
+  package:
+    name:
+      - docker.io
+      - docker-doc
+      - docker-compose
+      - docker-compose-v2
+      - podman-docker
+      - containerd
+      - runc
+    state: absent
+  become: true
+  when: package_state == 'present'
+
+- name: Install prerequisites for Docker repository
+  package:
+    name:
+      - ca-certificates
+      - curl
+    state: present
+  become: true
+  when: package_state == 'present'
+
+- name: Create Docker keyring directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+  become: true
+  when: package_state == 'present'
+
+- name: Download Docker GPG key
+  get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+  become: true
+  when: package_state == 'present'
+
+- name: Add Docker repository
+  apt_repository:
+    repo: "deb [arch={{ ansible_architecture | replace('x86_64', 'amd64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+    filename: docker
+  become: true
+  when: package_state == 'present'
+
+- name: Update apt cache after adding Docker repository
+  apt:
+    update_cache: yes
+  become: true
+  when: package_state == 'present'
+
+- name: Install/Remove Docker packages
+  package:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: "{{ package_state }}"
+  become: true
+
+- name: Start and enable Docker service
+  service:
+    name: docker
+    state: "{{ service_state }}"
+    enabled: "{{ service_state == 'started' }}"
+  become: true
+  when: package_state == 'present'
+
+- name: Add user to docker group
+  user:
+    name: "{{ user_name }}"
+    groups: docker
+    append: yes
+  become: true
+  when: package_state == 'present'
+
+- name: Remove Docker repository when removing Docker
+  apt_repository:
+    repo: "deb [arch={{ ansible_architecture | replace('x86_64', 'amd64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: absent
+    filename: docker
+  become: true
+  when: package_state == 'absent'
+
+- name: Remove Docker GPG key when removing Docker
+  file:
+    path: /etc/apt/keyrings/docker.asc
+    state: absent
+  become: true
+  when: package_state == 'absent'
+
+- name: Verify Docker installation
+  command: docker --version
+  register: docker_version
+  failed_when: false
+  changed_when: false
+  become_user: "{{ user_name }}"
+  when: package_state == 'present'
+
+- name: Display Docker version
+  debug:
+    msg: "{{ docker_version.stdout }}"
+  when: 
+    - package_state == 'present'
+    - docker_version.rc == 0
