@@ -60,6 +60,10 @@
     state: "{{ package_state }}"
   become: true
 
+- name: Refresh system facts after Node.js installation
+  setup:
+  when: package_state == 'present'
+
 - name: Install global npm packages
   shell: npm install -g "{{ item }}"
   loop:
@@ -67,8 +71,6 @@
     - "@google/gemini-cli"
   become: true
   when: package_state == 'present'
-  environment:
-    PATH: "{{ ansible_env.PATH }}:/usr/bin"
 
 - name: Remove global npm packages
   shell: npm uninstall -g "{{ item }}"
@@ -78,8 +80,6 @@
   become: true
   when: package_state == 'absent'
   failed_when: false
-  environment:
-    PATH: "{{ ansible_env.PATH }}:/usr/bin"
 
 - name: Fix Claude Code npm permissions for auto-updates
   shell: chown -R {{ user_name }}:$(id -gn {{ user_name }}) $(npm -g config get prefix)
