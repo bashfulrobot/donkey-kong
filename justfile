@@ -1,55 +1,70 @@
 # Ansible laptop configuration management
 
+# Check vault prerequisites before running
+check-vault-setup:
+    #!/usr/bin/env bash
+    if [ ! -f "vars/vault_password.txt" ]; then
+        echo "❌ ERROR: vars/vault_password.txt not found!"
+        echo "Please run 'just setup-vault' for first-time setup instructions."
+        exit 1
+    fi
+    if [ ! -s "vars/vault_password.txt" ]; then
+        echo "❌ ERROR: vars/vault_password.txt is empty!"
+        echo "Please add your vault password to vars/vault_password.txt"
+        exit 1
+    fi
+    echo "✅ Vault password file is configured"
+
 # Run full build
-build:
+build: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --ask-become-pass
 
 # Run specific tags
-dev:
+dev: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags dev --ask-become-pass
 
-infra:
+infra: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags infra --ask-become-pass
 
-offcoms:
+offcoms: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags offcoms --ask-become-pass
 
-shell:
+shell: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags shell --ask-become-pass
 
-sys:
+sys: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags sys --ask-become-pass
 
-core:
+core: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags core --ask-become-pass
 
 # Skip certain tags
-build-skip-offcoms:
+build-skip-offcoms: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --skip-tags offcoms --ask-become-pass
 
-build-skip-infra:
+build-skip-infra: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --skip-tags infra --ask-become-pass
 
 # Dry run checks
-check:
+check: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --ask-become-pass
 
-check-dev:
+check-dev: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags dev --ask-become-pass
 
-check-infra:
+check-infra: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags infra --ask-become-pass
 
-check-offcoms:
+check-offcoms: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags offcoms --ask-become-pass
 
-check-shell:
+check-shell: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags shell --ask-become-pass
 
-check-sys:
+check-sys: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags sys --ask-become-pass
 
-check-core:
+check-core: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags core --ask-become-pass
 
 # Syntax check
@@ -61,19 +76,19 @@ ping:
     ansible all -i inventory/localhost.yml -m ping
 
 # Vault management
-edit-secrets:
+edit-secrets: check-vault-setup
     ansible-vault edit vars/secrets.yml
 
-encrypt-secrets:
+encrypt-secrets: check-vault-setup
     ansible-vault encrypt vars/secrets.yml
 
-decrypt-secrets:
+decrypt-secrets: check-vault-setup
     ansible-vault decrypt vars/secrets.yml
 
-rekey-secrets:
+rekey-secrets: check-vault-setup
     ansible-vault rekey vars/secrets.yml
 
-view-secrets:
+view-secrets: check-vault-setup
     ansible-vault view vars/secrets.yml
 
 # Check vault encryption status
