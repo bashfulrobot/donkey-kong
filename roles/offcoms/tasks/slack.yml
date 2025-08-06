@@ -1,0 +1,27 @@
+---
+# Slack installation from official deb package
+- name: Create temporary directory for Slack installation
+  tempfile:
+    state: directory
+    suffix: slack
+  register: slack_temp_dir
+
+- name: Download Slack deb package
+  get_url:
+    url: "https://slack.com/downloads/instructions/linux?ddl=1&build=deb"
+    dest: "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
+    mode: '0644'
+  register: slack_download
+
+- name: Install Slack deb package
+  apt:
+    deb: "{{ slack_download.dest }}"
+    state: present
+  become: yes
+  notify: restart desktop session
+
+- name: Clean up temporary directory
+  file:
+    path: "{{ slack_temp_dir.path }}"
+    state: absent
+  when: slack_temp_dir.path is defined

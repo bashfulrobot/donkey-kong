@@ -3,6 +3,9 @@
 - name: Offcoms - General applications
   include_tasks: general.yml
 
+- name: Offcoms - Slack installation
+  include_tasks: slack.yml
+
 # Additional office/communications configuration files can be added as needed:
 # - browsers.yml (browser configuration)
 # - communications.yml (communication apps)
