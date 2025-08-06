@@ -1,7 +1,7 @@
 # Configuration settings
 git_config:
-  user_name: ""
-  user_email: ""
+  user_name: "bashfulrobot"
+  user_email: "dustin@bashfulrobot.com"
   
 shell_config:
   default_shell: "/bin/zsh"

@@ -27,3 +27,87 @@
     value: "true"
     scope: global
   when: git_config.signing_key is defined and git_config.signing_key != ""
+
+- name: Enable tag signing by default
+  git_config:
+    name: tag.gpgsign
+    value: "true"
+    scope: global
+  when: git_config.signing_key is defined and git_config.signing_key != ""
+
+- name: Configure GPG format to SSH
+  git_config:
+    name: gpg.format
+    value: "ssh"
+    scope: global
+  when: git_config.signing_key is defined and git_config.signing_key != ""
+
+- name: Ensure .config/git directory exists
+  file:
+    path: ~/.config/git
+    state: directory
+    mode: '0755'
+
+- name: Configure SSH allowed signers file
+  git_config:
+    name: gpg.ssh.allowedsignersfile
+    value: "~/.config/git/allowed_signers"
+    scope: global
+  when: git_config.signing_key is defined and git_config.signing_key != ""
+
+- name: Set default branch to main
+  git_config:
+    name: init.defaultbranch
+    value: "main"
+    scope: global
+
+- name: Configure merge to fast-forward only
+  git_config:
+    name: merge.ff
+    value: "only"
+    scope: global
+
+- name: Configure pull to fast-forward only
+  git_config:
+    name: pull.ff
+    value: "only"
+    scope: global
+
+- name: Configure push default to simple
+  git_config:
+    name: push.default
+    value: "simple"
+    scope: global
+
+- name: Enable rebase autosquash
+  git_config:
+    name: rebase.autosquash
+    value: "true"
+    scope: global
+
+- name: Configure GitHub URL rewrite for SSH
+  git_config:
+    name: url.git@github.com:.pushinsteadof
+    value: "https://github.com"
+    scope: global
+
+- name: Enable core fsmonitor
+  git_config:
+    name: core.fsmonitor
+    value: "true"
+    scope: global
+
+- name: Configure credential helper
+  git_config:
+    name: credential.helper
+    value: "store"
+    scope: global
+
+- name: Configure git aliases
+  git_config:
+    name: "alias.{{ item.alias }}"
+    value: "{{ item.command }}"
+    scope: global
+  loop:
+    - { alias: "a", command: "add" }
+    - { alias: "c", command: "commit" }
