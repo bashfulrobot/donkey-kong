@@ -214,6 +214,8 @@ Package removal uses an **"all or nothing"** approach - removing a component uni
 - Manual configurations you've made
 - Dependencies installed by other packages
 - System packages that other software depends on
+- Package configuration files (may need manual cleanup)
+- Cache files and logs created by removed packages
 
 ### Selective Package Removal Workflow
 To remove individual packages from a group while keeping others:
@@ -237,6 +239,28 @@ just shell
 ```
 
 This keeps the configuration simple while allowing selective removal when needed.
+
+### Manual Cleanup
+After removing packages, you may want to manually clean up leftover files:
+
+```bash
+# Remove package configuration files
+sudo apt autoremove --purge
+
+# Clean package cache
+sudo apt autoclean
+
+# Remove leftover config directories (be careful!)
+# Example locations: ~/.config/app-name, ~/.cache/app-name, ~/.local/share/app-name
+
+# Check for orphaned packages
+sudo deborphan
+
+# Remove npm cache (if removing Node.js tools)
+npm cache clean --force
+```
+
+**⚠️ Warning:** Always verify what files you're removing before deleting configuration directories.
 
 ## Vault Management
 
