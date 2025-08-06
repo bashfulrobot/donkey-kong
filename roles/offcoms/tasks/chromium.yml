@@ -28,7 +28,6 @@
       tags:
         - downloads
         - slow
-        - never
 
     - name: Install XtraDeb GPG key
       command: gpg --dearmor -o /usr/share/keyrings/xtradeb.gpg /tmp/xtradeb.asc

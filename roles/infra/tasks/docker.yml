@@ -43,7 +43,6 @@
   tags:
     - downloads
     - slow
-    - never
 
 - name: Add Docker repository
   apt_repository:

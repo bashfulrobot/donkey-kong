@@ -22,7 +22,6 @@
       tags:
         - downloads
         - slow
-        - never
 
     - name: Extract Slack version number from HTML
       set_fact:
@@ -30,7 +29,6 @@
       tags:
         - downloads
         - slow
-        - never
 
     - name: Construct direct download URL using scraped version
       set_fact:
@@ -39,7 +37,6 @@
       tags:
         - downloads
         - slow
-        - never
 
     - name: Download Slack deb package using curl with browser headers
       command: >
@@ -59,7 +56,6 @@
       tags:
         - downloads
         - slow
-        - never
 
     - name: Fallback - try known working older version if latest fails
       command: >
@@ -73,7 +69,6 @@
       tags:
         - downloads
         - slow
-        - never
 
     - name: Install Slack deb package with dpkg
       command: dpkg -i "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"

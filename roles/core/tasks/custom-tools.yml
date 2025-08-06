@@ -18,7 +18,6 @@
       tags:
         - downloads
         - slow
-        - never
 
     - name: Download and install Helix
       block:
@@ -30,7 +29,6 @@
           tags:
             - downloads
             - slow
-            - never
 
         - name: Create installation directory
           file:
@@ -63,4 +61,3 @@
       tags:
         - downloads
         - slow
-        - never

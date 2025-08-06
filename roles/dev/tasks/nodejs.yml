@@ -30,7 +30,6 @@
   tags:
     - downloads
     - slow
-    - never
 
 - name: Dearmor NodeSource GPG key
   command: gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg /tmp/nodesource-repo.gpg.key
