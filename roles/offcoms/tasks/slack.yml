@@ -6,6 +6,10 @@
   failed_when: false
   changed_when: false
 
+- name: DEBUG - Log Slack check result
+  debug:
+    msg: "Slack check result: rc={{ slack_check.rc }}, package_state={{ package_state }}"
+
 - name: Slack installation block
   block:
     - name: Create temporary directory for Slack installation
@@ -26,6 +30,14 @@
         - slow
         - never
 
+    - name: DEBUG - Log redirect result
+      debug:
+        var: slack_redirect
+      tags:
+        - downloads
+        - slow
+        - never
+
     - name: Download Slack deb package from resolved URL
       get_url:
         url: "{{ slack_redirect.url }}"
@@ -38,6 +50,25 @@
         - slow
         - never
 
+    - name: DEBUG - Log download result
+      debug:
+        var: slack_download
+      tags:
+        - downloads
+        - slow
+        - never
+
+    - name: DEBUG - Log file before installation
+      stat:
+        path: "{{ slack_download.dest }}"
+      register: slack_file_stat
+      when: slack_download is defined
+
+    - name: DEBUG - Log file info
+      debug:
+        var: slack_file_stat
+      when: slack_download is defined
+
     - name: Install Slack deb package with dpkg
       command: dpkg -i "{{ slack_download.dest }}"
       become: yes
@@ -45,11 +76,24 @@
       failed_when: false
       when: slack_download is defined
 
+    - name: DEBUG - Log dpkg result
+      debug:
+        var: dpkg_result
+      when: slack_download is defined
+
     - name: Fix broken dependencies if dpkg installation failed
       apt:
         update_cache: yes
         fix_broken: yes
       become: yes
+      register: apt_fix_result
+      when: 
+        - slack_download is defined
+        - dpkg_result.rc != 0
+
+    - name: DEBUG - Log apt fix result
+      debug:
+        var: apt_fix_result
       when: 
         - slack_download is defined
         - dpkg_result.rc != 0
@@ -64,6 +108,10 @@
     - package_state == 'present'
     - slack_check.rc != 0
 
+- name: DEBUG - Log block execution conditions
+  debug:
+    msg: "Block executed: package_state={{ package_state }}, slack_check.rc={{ slack_check.rc }}, condition_met={{ (package_state == 'present') and (slack_check.rc != 0) }}"
+
 - name: Remove Slack
   apt:
     name: slack-desktop
@@ -76,4 +124,9 @@
   register: slack_verify
   failed_when: false
   changed_when: false
+  when: package_state == 'present'
+
+- name: DEBUG - Log final verification
+  debug:
+    var: slack_verify
   when: package_state == 'present'
