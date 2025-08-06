@@ -45,3 +45,38 @@
     state: directory
     mode: '0755'
   when: package_state == 'present'
+
+- name: Create Fish completions directory
+  file:
+    path: "{{ user_home }}/.config/fish/completions"
+    state: directory
+    mode: '0755'
+  when: package_state == 'present'
+
+- name: Install just completions for fish
+  shell: just --completions fish > "{{ user_home }}/.config/fish/completions/just.fish"
+  args:
+    creates: "{{ user_home }}/.config/fish/completions/just.fish"
+  when: package_state == 'present'
+
+- name: Create fzf integration function for just
+  copy:
+    dest: "{{ user_home }}/.config/fish/functions/j.fish"
+    content: |
+      function j --description "Interactive just recipe selector using fzf"
+          just --choose
+      end
+    mode: '0644'
+  when: package_state == 'present'
+
+- name: Remove just completions when uninstalling
+  file:
+    path: "{{ user_home }}/.config/fish/completions/just.fish"
+    state: absent
+  when: package_state == 'absent'
+
+- name: Remove fzf integration function when uninstalling
+  file:
+    path: "{{ user_home }}/.config/fish/functions/j.fish"
+    state: absent
+  when: package_state == 'absent'
