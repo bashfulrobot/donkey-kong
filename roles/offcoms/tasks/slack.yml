@@ -61,20 +61,36 @@
         - slow
         - never
 
-    - name: Download Slack deb package from constructed URL with proper headers
-      get_url:
-        url: "{{ slack_download_url }}"
-        dest: "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
-        headers:
-          User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-          Referer: "https://slack.com/downloads/linux"
-          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-          Accept-Language: "en-US,en;q=0.5"
-          Accept-Encoding: "gzip, deflate, br"
-        mode: '0644'
-        timeout: 60
+    - name: Download Slack deb package using curl with full browser simulation
+      command: >
+        curl -L -o "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
+        -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        -H "Referer: https://slack.com/downloads/linux"
+        -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        -H "Accept-Language: en-US,en;q=0.5"
+        -H "Accept-Encoding: gzip, deflate, br"
+        -H "DNT: 1"
+        -H "Connection: keep-alive"
+        -H "Upgrade-Insecure-Requests: 1"
+        "{{ slack_download_url }}"
       register: slack_download
+      failed_when: false
       when: slack_download_url is defined and slack_download_url != ""
+      tags:
+        - downloads
+        - slow
+        - never
+
+    - name: Fallback - try known working older version if latest fails
+      command: >
+        curl -L -o "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
+        -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        -H "Referer: https://slack.com/downloads/linux"
+        "https://downloads.slack-edge.com/releases/linux/4.40.126/prod/x64/slack-desktop-4.40.126-amd64.deb"
+      register: slack_download_fallback
+      failed_when: false
+      when: 
+        - slack_download.rc != 0
       tags:
         - downloads
         - slow
@@ -88,12 +104,21 @@
         - slow
         - never
 
+    - name: DEBUG - Log fallback download result
+      debug:
+        var: slack_download_fallback
+      when: slack_download_fallback is defined
+      tags:
+        - downloads
+        - slow
+        - never
+
     - name: Install Slack deb package with dpkg
-      command: dpkg -i "{{ slack_download.dest }}"
+      command: dpkg -i "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
       become: yes
       register: dpkg_result
       failed_when: false
-      when: slack_download is defined and slack_download.dest is defined
+      when: (slack_download.rc == 0) or (slack_download_fallback.rc == 0 if slack_download_fallback is defined else false)
 
     - name: DEBUG - Log dpkg result  
       debug:
