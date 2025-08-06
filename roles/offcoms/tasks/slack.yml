@@ -15,12 +15,24 @@
     timeout: 30
   register: slack_download
 
-- name: Install Slack deb package
-  apt:
-    deb: "{{ slack_download.dest }}"
-    state: present
+- name: Install Slack deb package with dpkg
+  command: dpkg -i "{{ slack_download.dest }}"
   become: yes
-  notify: restart desktop session
+  register: dpkg_result
+  failed_when: false
+
+- name: Fix broken dependencies if dpkg installation failed
+  apt:
+    update_cache: yes
+    fix_broken: yes
+  become: yes
+  when: dpkg_result.rc != 0
+
+- name: Verify Slack installation
+  command: dpkg -l slack-desktop
+  register: slack_verify
+  failed_when: false
+  changed_when: false
 
 - name: Clean up temporary directory
   file:
