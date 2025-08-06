@@ -8,7 +8,7 @@ ansible for my work laptop
 Run the bootstrap script to install required tools and clone the repository:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/bashfulrobot/donkey-kong/main/bootstrap/bootstrap.sh | bash
+wget -qO- https://raw.githubusercontent.com/bashfulrobot/donkey-kong/main/bootstrap/bootstrap.sh | bash
 cd ~/dev/kong/hardware/donkey-kong
 ```
 
