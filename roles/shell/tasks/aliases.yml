@@ -14,7 +14,7 @@
       
       # Modern replacements
       alias cat='bat'
-      alias ls='exa'
+      alias ls='eza'
       alias find='fd'
     mode: '0644'
 

@@ -13,6 +13,6 @@
       - ripgrep
       - bat
       - fd-find
-      - exa
+      - eza
     state: present
   become: true
