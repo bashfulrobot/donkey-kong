@@ -18,19 +18,43 @@
         suffix: slack
       register: slack_temp_dir
 
-    - name: Download Slack deb package with browser headers
-      get_url:
+    - name: Get Slack downloads page HTML to extract actual download URL
+      uri:
         url: "https://slack.com/downloads/instructions/linux?ddl=1&build=deb"
-        dest: "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
+        method: GET
         headers:
           User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8"
-          Accept-Language: "en-US,en;q=0.5"
-          Accept-Encoding: "gzip, deflate, br"
-          Referer: "https://slack.com/downloads/linux"
+        return_content: yes
+      register: slack_html_page
+      tags:
+        - downloads
+        - slow
+        - never
+
+    - name: Extract actual download URL from HTML
+      set_fact:
+        slack_download_url: "{{ slack_html_page.content | regex_search('https://downloads\\.slack-edge\\.com/releases/linux/[0-9.]+/prod/x64/slack-desktop-[0-9.]+-amd64\\.deb') }}"
+      tags:
+        - downloads
+        - slow
+        - never
+
+    - name: DEBUG - Log extracted download URL
+      debug:
+        msg: "Extracted Slack download URL: {{ slack_download_url }}"
+      tags:
+        - downloads
+        - slow
+        - never
+
+    - name: Download Slack deb package from extracted URL
+      get_url:
+        url: "{{ slack_download_url }}"
+        dest: "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
         mode: '0644'
         timeout: 60
       register: slack_download
+      when: slack_download_url is defined and slack_download_url != ""
       tags:
         - downloads
         - slow
@@ -49,16 +73,20 @@
       become: yes
       register: dpkg_result
       failed_when: false
+      when: slack_download is defined and slack_download.dest is defined
 
     - name: DEBUG - Log dpkg result  
       debug:
         var: dpkg_result
+      when: dpkg_result is defined
 
     - name: Fix broken dependencies if dpkg installation failed
       command: apt-get install -f -y
       become: yes
       register: apt_fix_result
-      when: dpkg_result.rc != 0
+      when: 
+        - dpkg_result is defined
+        - dpkg_result.rc != 0
 
     - name: Clean up temporary directory
       file:
