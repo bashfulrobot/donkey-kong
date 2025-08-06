@@ -46,7 +46,7 @@
 
     - name: Construct direct download URL using scraped version
       set_fact:
-        slack_download_url: "https://downloads.slack-edge.com/releases/linux/{{ slack_version }}/prod/x64/slack-desktop-{{ slack_version }}-amd64.deb"
+        slack_download_url: "https://downloads.slack-edge.com/desktop-releases/linux/x64/{{ slack_version }}/slack-desktop-{{ slack_version }}-amd64.deb"
       when: slack_version is defined and slack_version != ""
       tags:
         - downloads
@@ -86,7 +86,7 @@
         curl -L -o "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
         -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         -H "Referer: https://slack.com/downloads/linux"
-        "https://downloads.slack-edge.com/releases/linux/4.40.126/prod/x64/slack-desktop-4.40.126-amd64.deb"
+        "https://downloads.slack-edge.com/desktop-releases/linux/x64/4.40.126/slack-desktop-4.40.126-amd64.deb"
       register: slack_download_fallback
       failed_when: false
       when: 
