@@ -1,11 +1,13 @@
 ---
-# Office and communications tasks
-- name: Install office/communications packages
-  package:
-    name: "{{ offcoms_packages }}"
-    state: present
-  become: true
+# Offcoms suite - orchestrates all office/communications tasks
+- name: Offcoms - General applications
+  include_tasks: general.yml
 
-- name: Configure applications
-  debug:
-    msg: "Office and communications tasks go here"
+- name: Offcoms - Browser configuration
+  include_tasks: browsers.yml
+
+- name: Offcoms - Communication apps
+  include_tasks: communications.yml
+
+- name: Offcoms - Office suites
+  include_tasks: office.yml

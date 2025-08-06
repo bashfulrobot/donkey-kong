@@ -101,19 +101,26 @@ flowchart TD
     E --> M[roles/infra<br/>tag: infra]
     E --> N[roles/offcoms<br/>tag: offcoms]
     
-    I --> I1[tasks/main.yml]
-    J --> J1[tasks/main.yml]
-    K --> K1[tasks/main.yml]
-    L --> L1[tasks/main.yml]
-    M --> M1[tasks/main.yml]
-    N --> N1[tasks/main.yml]
+    I --> I1[tasks/main.yml<br/>📋 Suite Orchestrator]
+    J --> J1[tasks/main.yml<br/>📋 Suite Orchestrator]
+    K --> K1[tasks/main.yml<br/>📋 Suite Orchestrator]
+    L --> L1[tasks/main.yml<br/>📋 Suite Orchestrator]
+    M --> M1[tasks/main.yml<br/>📋 Suite Orchestrator]
+    N --> N1[tasks/main.yml<br/>📋 Suite Orchestrator]
     
-    I1 --> O[System Configuration]
-    J1 --> O
-    K1 --> O
-    L1 --> O
-    M1 --> O
-    N1 --> O
+    I1 --> I2[general.yml<br/>git.yml<br/>ssh.yml]
+    J1 --> J2[general.yml<br/>network.yml<br/>security.yml<br/>performance.yml]
+    K1 --> K2[general.yml<br/>zsh.yml<br/>tmux.yml<br/>aliases.yml]
+    L1 --> L2[general.yml<br/>nodejs.yml<br/>python.yml<br/>golang.yml<br/>docker.yml]
+    M1 --> M2[general.yml<br/>kubernetes.yml<br/>terraform.yml<br/>cloud-tools.yml]
+    N1 --> N2[general.yml<br/>browsers.yml<br/>communications.yml<br/>office.yml]
+    
+    I2 --> O[System Configuration]
+    J2 --> O
+    K2 --> O
+    L2 --> O
+    M2 --> O
+    N2 --> O
     
     C -.-> P[vars/vault_password.txt<br/>🚫 gitignored]
     H -.-> P
@@ -122,6 +129,12 @@ flowchart TD
     style P fill:#ffcccc
     style A fill:#e6f3ff
     style O fill:#e6ffe6
+    style I1 fill:#fff2e6
+    style J1 fill:#fff2e6
+    style K1 fill:#fff2e6
+    style L1 fill:#fff2e6
+    style M1 fill:#fff2e6
+    style N1 fill:#fff2e6
 ```
 
 **Flow Explanation:**
@@ -131,7 +144,11 @@ flowchart TD
 4. **main.yml** orchestrates the execution with tags
 5. **vars/** files provide configuration data (secrets encrypted)
 6. **roles/** execute based on selected tags
-7. Each role's **tasks/main.yml** performs actual system configuration
+7. Each role's **main.yml** acts as a suite orchestrator
+8. **Suite files** handle specific app configurations (e.g., nodejs.yml, docker.yml)
+9. **general.yml** in each suite handles simple package installations
+
+**Suite Structure:** Each role now uses a modular approach where `main.yml` orchestrates multiple specialized task files, allowing for both simple bulk installations (`general.yml`) and complex app-specific configurations (individual `.yml` files).
 
 **Security Layer:** Vault password file is gitignored and secrets are encrypted before any git operations.
 

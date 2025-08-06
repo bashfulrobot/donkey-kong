@@ -1,11 +1,16 @@
 ---
-# Development tools tasks
-- name: Install development packages
-  package:
-    name: "{{ dev_packages }}"
-    state: present
-  become: true
+# Dev suite - orchestrates all development tasks
+- name: Dev - General development packages
+  include_tasks: general.yml
 
-- name: Configure development environment
-  debug:
-    msg: "Development environment tasks go here"
+- name: Dev - Node.js and npm configuration
+  include_tasks: nodejs.yml
+
+- name: Dev - Python development setup
+  include_tasks: python.yml
+
+- name: Dev - Go development setup
+  include_tasks: golang.yml
+
+- name: Dev - Docker configuration
+  include_tasks: docker.yml

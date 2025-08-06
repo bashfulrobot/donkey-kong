@@ -1,0 +1,28 @@
+---
+# Shell aliases and functions
+- name: Create shell aliases file
+  copy:
+    dest: "{{ user_home }}/.shell_aliases"
+    content: |
+      # Common aliases
+      alias ll='ls -alF'
+      alias la='ls -A'
+      alias l='ls -CF'
+      alias grep='grep --color=auto'
+      alias fgrep='fgrep --color=auto'
+      alias egrep='egrep --color=auto'
+      
+      # Modern replacements
+      alias cat='bat'
+      alias ls='exa'
+      alias find='fd'
+    mode: '0644'
+
+- name: Source aliases in shell rc files
+  lineinfile:
+    path: "{{ item }}"
+    line: "source ~/.shell_aliases"
+    create: yes
+  loop:
+    - "{{ user_home }}/.bashrc"
+    - "{{ user_home }}/.zshrc"

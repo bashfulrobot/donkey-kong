@@ -1,0 +1,17 @@
+---
+# General infrastructure packages
+- name: Install infrastructure packages
+  package:
+    name: "{{ infra_packages }}"
+    state: present
+  become: true
+
+- name: Install additional infrastructure tools
+  package:
+    name:
+      - jq
+      - yq
+      - httpie
+      - awscli
+    state: present
+  become: true

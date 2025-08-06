@@ -1,0 +1,18 @@
+---
+# General shell packages and setup
+- name: Install shell packages
+  package:
+    name: "{{ shell_packages }}"
+    state: present
+  become: true
+
+- name: Install additional shell tools
+  package:
+    name:
+      - fzf
+      - ripgrep
+      - bat
+      - fd-find
+      - exa
+    state: present
+  become: true

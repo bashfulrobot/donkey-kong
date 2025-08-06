@@ -1,0 +1,21 @@
+---
+# General development packages and tools
+- name: Install basic development packages
+  package:
+    name: "{{ dev_packages }}"
+    state: present
+  become: true
+
+- name: Install additional development tools
+  package:
+    name:
+      - build-essential
+      - cmake
+      - pkg-config
+      - libssl-dev
+      - libffi-dev
+      - libxml2-dev
+      - libxslt1-dev
+      - libyaml-dev
+    state: present
+  become: true

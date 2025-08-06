@@ -1,11 +1,13 @@
 ---
-# Infrastructure tools tasks
-- name: Install infrastructure packages
-  package:
-    name: "{{ infra_packages }}"
-    state: present
-  become: true
+# Infra suite - orchestrates all infrastructure tasks
+- name: Infra - General infrastructure packages
+  include_tasks: general.yml
 
-- name: Configure infrastructure tools
-  debug:
-    msg: "Infrastructure tools tasks go here"
+- name: Infra - Kubernetes tools
+  include_tasks: kubernetes.yml
+
+- name: Infra - Terraform setup
+  include_tasks: terraform.yml
+
+- name: Infra - Cloud CLI tools
+  include_tasks: cloud-tools.yml

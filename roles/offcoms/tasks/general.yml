@@ -1,0 +1,17 @@
+---
+# General office/communications packages
+- name: Install office/communications packages
+  package:
+    name: "{{ offcoms_packages }}"
+    state: present
+  become: true
+
+- name: Install additional productivity tools
+  package:
+    name:
+      - libreoffice
+      - gimp
+      - vlc
+      - audacity
+    state: present
+  become: true

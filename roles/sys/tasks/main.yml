@@ -1,11 +1,13 @@
 ---
-# System configuration tasks
-- name: Install system packages
-  package:
-    name: "{{ sys_packages }}"
-    state: present
-  become: true
+# Sys suite - orchestrates all system configuration
+- name: Sys - General system packages
+  include_tasks: general.yml
 
-- name: Configure system settings
-  debug:
-    msg: "System configuration tasks go here"
+- name: Sys - Network configuration
+  include_tasks: network.yml
+
+- name: Sys - Security hardening
+  include_tasks: security.yml
+
+- name: Sys - Performance tuning
+  include_tasks: performance.yml

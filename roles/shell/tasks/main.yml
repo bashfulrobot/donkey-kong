@@ -1,11 +1,13 @@
 ---
-# Shell configuration tasks
-- name: Install shell packages
-  package:
-    name: "{{ shell_packages }}"
-    state: present
-  become: true
+# Shell suite - orchestrates all shell configuration
+- name: Shell - General shell setup
+  include_tasks: general.yml
 
-- name: Configure shell
-  debug:
-    msg: "Shell configuration tasks go here"
+- name: Shell - Zsh configuration
+  include_tasks: zsh.yml
+
+- name: Shell - Tmux configuration
+  include_tasks: tmux.yml
+
+- name: Shell - Aliases and functions
+  include_tasks: aliases.yml

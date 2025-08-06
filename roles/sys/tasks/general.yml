@@ -1,0 +1,19 @@
+---
+# General system packages and configuration
+- name: Install system packages
+  package:
+    name: "{{ sys_packages }}"
+    state: present
+  become: true
+
+- name: Install additional system utilities
+  package:
+    name:
+      - neofetch
+      - lsof
+      - strace
+      - tcpdump
+      - iotop
+      - nmon
+    state: present
+  become: true

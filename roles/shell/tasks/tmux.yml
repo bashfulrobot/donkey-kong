@@ -1,0 +1,13 @@
+---
+# Tmux configuration
+- name: Create tmux config directory
+  file:
+    path: "{{ user_home }}/.config/tmux"
+    state: directory
+    mode: '0755'
+
+- name: Deploy tmux configuration
+  template:
+    src: tmux.conf.j2
+    dest: "{{ user_home }}/.tmux.conf"
+    mode: '0644'

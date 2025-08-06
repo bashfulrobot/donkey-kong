@@ -1,0 +1,25 @@
+---
+# Go development setup
+- name: Install Go programming language
+  package:
+    name: golang-go
+    state: present
+  become: true
+
+- name: Set up Go environment variables
+  blockinfile:
+    path: "{{ user_home }}/.profile"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Go"
+    block: |
+      export GOPATH=$HOME/go
+      export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+
+- name: Create Go workspace directories
+  file:
+    path: "{{ user_home }}/go/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - src
+    - bin
+    - pkg
