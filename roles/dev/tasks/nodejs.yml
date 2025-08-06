@@ -53,10 +53,11 @@
   become: true
   when: package_state == 'present'
 
-- name: Install/Remove Node.js
+- name: Install/Remove Node.js and npm
   package:
     name:
       - nodejs
+      - npm
     state: "{{ package_state }}"
   become: true
 
