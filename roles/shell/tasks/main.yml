@@ -6,9 +6,6 @@
 - name: Shell - Fish shell configuration
   include_tasks: fish.yml
 
-- name: Shell - Zsh configuration
-  include_tasks: zsh.yml
-
 - name: Shell - Tmux configuration
   include_tasks: tmux.yml
 

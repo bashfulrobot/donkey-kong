@@ -25,10 +25,10 @@
   become: true
   when: package_state == 'present'
 
-- name: Set original shell when removing Fish
+- name: Set fallback shell when removing Fish
   user:
     name: "{{ user_name }}"
-    shell: "{{ shell_config.default_shell | default('/bin/bash') }}"
+    shell: "{{ shell_config.fallback_shell | default('/bin/bash') }}"
   become: true
   when: package_state == 'absent'
 

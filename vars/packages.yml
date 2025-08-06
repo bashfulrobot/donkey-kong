@@ -15,7 +15,6 @@ sys_packages:
   - zip
 
 shell_packages:
-  - zsh
   - tmux
 
 dev_packages:

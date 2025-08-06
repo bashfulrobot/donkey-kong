@@ -25,7 +25,6 @@
     create: yes
   loop:
     - "{{ user_home }}/.bashrc"
-    - "{{ user_home }}/.zshrc"
 
 - name: Create Fish shell aliases
   copy:
