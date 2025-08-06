@@ -2,55 +2,55 @@
 
 # Run full build
 build:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --ask-become-pass
 
 # Run specific tags
 dev:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags dev
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags dev --ask-become-pass
 
 infra:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags infra
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags infra --ask-become-pass
 
 offcoms:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags offcoms
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags offcoms --ask-become-pass
 
 shell:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags shell
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags shell --ask-become-pass
 
 sys:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags sys
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags sys --ask-become-pass
 
 core:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags core
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags core --ask-become-pass
 
 # Skip certain tags
 build-skip-offcoms:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --skip-tags offcoms
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --skip-tags offcoms --ask-become-pass
 
 build-skip-infra:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --skip-tags infra
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --skip-tags infra --ask-become-pass
 
 # Dry run checks
 check:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --ask-become-pass
 
 check-dev:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags dev
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags dev --ask-become-pass
 
 check-infra:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags infra
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags infra --ask-become-pass
 
 check-offcoms:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags offcoms
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags offcoms --ask-become-pass
 
 check-shell:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags shell
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags shell --ask-become-pass
 
 check-sys:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags sys
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags sys --ask-become-pass
 
 check-core:
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags core
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --tags core --ask-become-pass
 
 # Syntax check
 syntax:
