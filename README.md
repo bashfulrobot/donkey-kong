@@ -108,12 +108,12 @@ flowchart TD
     M --> M1[tasks/main.yml<br/>📋 Suite Orchestrator]
     N --> N1[tasks/main.yml<br/>📋 Suite Orchestrator]
     
-    I1 --> I2[general.yml<br/>git.yml<br/>ssh.yml]
-    J1 --> J2[general.yml<br/>network.yml<br/>security.yml<br/>performance.yml]
-    K1 --> K2[general.yml<br/>zsh.yml<br/>tmux.yml<br/>aliases.yml]
-    L1 --> L2[general.yml<br/>nodejs.yml<br/>python.yml<br/>golang.yml<br/>docker.yml]
-    M1 --> M2[general.yml<br/>kubernetes.yml<br/>terraform.yml<br/>cloud-tools.yml]
-    N1 --> N2[general.yml<br/>browsers.yml<br/>communications.yml<br/>office.yml]
+    I1 --> I2[general.yml<br/>custom-tools.yml<br/>git.yml<br/>ssh.yml<br/>fonts.yml<br/>dock.yml]
+    J1 --> J2[general.yml]
+    K1 --> K2[general.yml<br/>fish.yml<br/>tmux.yml<br/>aliases.yml]
+    L1 --> L2[general.yml<br/>nodejs.yml<br/>python.yml<br/>golang.yml<br/>vscode.yml]
+    M1 --> M2[general.yml<br/>docker.yml<br/>cloud-tools.yml]
+    N1 --> N2[general.yml<br/>slack.yml<br/>chromium.yml<br/>firefox.yml<br/>thunderbird.yml<br/>1password.yml<br/>zoom.yml<br/>chromium-extensions.yml]
     
     I2 --> O[System Configuration]
     J2 --> O
@@ -122,7 +122,7 @@ flowchart TD
     M2 --> O
     N2 --> O
     
-    C -.-> P[vars/vault_password.txt<br/>🚫 gitignored]
+    C -.-> P[vars/vault_password.txt<br/>vars/become_password.txt<br/>🚫 gitignored]
     H -.-> P
     
     style H fill:#ffe6e6
