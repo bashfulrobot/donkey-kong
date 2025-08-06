@@ -1,5 +1,6 @@
 ---
-# Cloud tools installation via snap and other methods
+# Cloud tools installation via snap (when no apt alternative available)
+# AWS CLI is only available as snap, not via apt
 
 - name: Install/Remove AWS CLI via snap
   snap:
