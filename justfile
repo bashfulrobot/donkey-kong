@@ -70,6 +70,9 @@ encrypt-secrets:
 decrypt-secrets:
     ansible-vault decrypt vars/secrets.yml
 
+rekey-secrets:
+    ansible-vault rekey vars/secrets.yml
+
 view-secrets:
     ansible-vault view vars/secrets.yml
 
