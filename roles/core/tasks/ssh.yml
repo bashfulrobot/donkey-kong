@@ -1,18 +1,19 @@
 ---
 # SSH configuration and key management
 
-- name: Install SSH server
+- name: Install/Remove SSH server
   package:
     name: openssh-server
-    state: present
+    state: "{{ package_state }}"
   become: true
 
-- name: Start and enable SSH service
+- name: Start/Stop SSH service
   service:
     name: ssh
-    state: started
-    enabled: yes
+    state: "{{ service_state }}"
+    enabled: "{{ service_state == 'started' }}"
   become: true
+  when: package_state == 'present'
 
 - name: Ensure .ssh directory exists
   file:

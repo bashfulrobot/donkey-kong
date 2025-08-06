@@ -1,9 +1,9 @@
 ---
 # Core general packages and basic setup
-- name: Install core packages
+- name: Install/Remove core packages
   package:
     name: "{{ core_packages }}"
-    state: present
+    state: "{{ package_state }}"
   become: true
 
 - name: Ensure user directories exist
@@ -16,7 +16,7 @@
     - "{{ bin_dir }}"
     - "{{ config_dir }}"
 
-- name: Install additional essential packages
+- name: Install/Remove additional essential packages
   package:
     name:
       - htop
@@ -24,5 +24,5 @@
       - unzip
       - zip
       - vim
-    state: present
+    state: "{{ package_state }}"
   become: true

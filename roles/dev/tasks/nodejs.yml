@@ -1,17 +1,19 @@
 ---
 # Node.js development setup
-- name: Install Node.js and npm
+- name: Install/Remove Node.js and npm
   package:
     name:
       - nodejs
       - npm
-    state: present
+    state: "{{ package_state }}"
   become: true
 
-- name: Install global npm packages
+- name: Install/Remove global npm packages
   npm:
     name: "{{ item }}"
+    state: "{{ package_state }}"
     global: yes
   loop:
     - "@anthropic-ai/claude-code"
   become: true
+  when: package_state == 'present'

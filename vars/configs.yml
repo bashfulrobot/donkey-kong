@@ -8,3 +8,8 @@ shell_config:
 
 dev_config:
   editor: "hx"
+
+# State management - set to 'absent' to remove instead of install
+package_state: "present"
+service_state: "started"
+config_state: "present"

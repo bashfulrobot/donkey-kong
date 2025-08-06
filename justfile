@@ -19,6 +19,10 @@ check-vault-setup:
 build: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --ask-become-pass
 
+# Remove all installed packages and configs
+remove: check-vault-setup
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
+
 # Run specific tags
 dev: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags dev --ask-become-pass
@@ -44,6 +48,25 @@ build-skip-offcoms: check-vault-setup
 
 build-skip-infra: check-vault-setup
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --skip-tags infra --ask-become-pass
+
+# Remove specific components
+remove-dev: check-vault-setup
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags dev --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
+
+remove-shell: check-vault-setup
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags shell --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
+
+remove-core: check-vault-setup
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags core --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
+
+remove-sys: check-vault-setup
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags sys --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
+
+remove-infra: check-vault-setup
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags infra --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
+
+remove-offcoms: check-vault-setup
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags offcoms --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
 
 # Dry run checks
 check: check-vault-setup

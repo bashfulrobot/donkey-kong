@@ -1,12 +1,12 @@
 ---
 # General shell packages and setup
-- name: Install shell packages
+- name: Install/Remove shell packages
   package:
     name: "{{ shell_packages }}"
-    state: present
+    state: "{{ package_state }}"
   become: true
 
-- name: Install additional shell tools
+- name: Install/Remove additional shell tools
   package:
     name:
       - fzf
@@ -14,5 +14,5 @@
       - bat
       - fd-find
       - eza
-    state: present
+    state: "{{ package_state }}"
   become: true

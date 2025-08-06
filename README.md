@@ -154,6 +154,7 @@ flowchart TD
 
 ## Available Commands
 
+### Installation Commands
 | Command | Description |
 |---------|-------------|
 | `just build` | Full laptop configuration |
@@ -166,6 +167,50 @@ flowchart TD
 | `just check` | Dry run (preview changes) |
 | `just ping` | Test ansible connectivity |
 | `just syntax` | Check playbook syntax |
+
+### Removal Commands
+| Command | Description |
+|---------|-------------|
+| `just remove` | Remove ALL installed packages and configurations |
+| `just remove-dev` | Remove development tools only |
+| `just remove-shell` | Remove shell tools and configurations |
+| `just remove-core` | Remove core packages and configurations |
+| `just remove-sys` | Remove system packages |
+| `just remove-infra` | Remove infrastructure tools |
+| `just remove-offcoms` | Remove office/communications apps |
+
+**⚠️ Warning:** Removal commands will uninstall packages and may remove configurations. Use with caution, especially `just remove` which removes everything.
+
+## Package/Configuration Removal
+
+The removal system uses Ansible's state-based approach to reverse installations:
+
+### Examples
+```bash
+# Remove all development tools
+just remove-dev
+
+# Remove shell customizations and tools  
+just remove-shell
+
+# Remove everything (nuclear option)
+just remove
+
+# Test what would be removed (dry run)
+just check -e "package_state=absent"
+```
+
+### What Gets Removed
+- **Packages**: Uninstalled via package manager
+- **Services**: Stopped and disabled  
+- **Global npm packages**: Uninstalled (when removing dev tools)
+- **Some configs**: Removed when config_state=absent
+
+### What Doesn't Get Removed
+- User data and home directory files
+- Manual configurations you've made
+- Dependencies installed by other packages
+- System packages that other software depends on
 
 ## Vault Management
 
