@@ -60,16 +60,26 @@
     state: "{{ package_state }}"
   become: true
 
-- name: Install/Remove global npm packages
-  npm:
-    name: "{{ item }}"
-    state: "{{ package_state }}"
-    global: yes
+- name: Install global npm packages
+  shell: npm install -g "{{ item }}"
   loop:
     - "@anthropic-ai/claude-code"
     - "@google/gemini-cli"
   become: true
   when: package_state == 'present'
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/usr/bin"
+
+- name: Remove global npm packages
+  shell: npm uninstall -g "{{ item }}"
+  loop:
+    - "@anthropic-ai/claude-code"
+    - "@google/gemini-cli"
+  become: true
+  when: package_state == 'absent'
+  failed_when: false
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/usr/bin"
 
 - name: Fix Claude Code npm permissions for auto-updates
   shell: chown -R {{ user_name }}:$(id -gn {{ user_name }}) $(npm -g config get prefix)
