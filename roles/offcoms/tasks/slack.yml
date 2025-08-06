@@ -1,14 +1,10 @@
 ---
-# Slack installation using known working direct URL 
+# Slack installation by dynamically scraping latest version
 - name: Check if Slack is already installed
   command: dpkg -l slack-desktop
   register: slack_check
   failed_when: false
   changed_when: false
-
-- name: DEBUG - Log Slack check result
-  debug:
-    msg: "Slack check result: rc={{ slack_check.rc }}, package_state={{ package_state }}"
 
 - name: Slack installation block
   block:
@@ -36,14 +32,6 @@
         - slow
         - never
 
-    - name: DEBUG - Log scraped Slack version
-      debug:
-        msg: "Scraped Slack version: {{ slack_version }}"
-      tags:
-        - downloads
-        - slow
-        - never
-
     - name: Construct direct download URL using scraped version
       set_fact:
         slack_download_url: "https://downloads.slack-edge.com/desktop-releases/linux/x64/{{ slack_version }}/slack-desktop-{{ slack_version }}-amd64.deb"
@@ -53,15 +41,7 @@
         - slow
         - never
 
-    - name: DEBUG - Log constructed download URL
-      debug:
-        msg: "Constructed Slack download URL: {{ slack_download_url }}"
-      tags:
-        - downloads
-        - slow
-        - never
-
-    - name: Download Slack deb package using curl with full browser simulation
+    - name: Download Slack deb package using curl with browser headers
       command: >
         curl -L -o "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
         -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -89,25 +69,7 @@
         "https://downloads.slack-edge.com/desktop-releases/linux/x64/4.40.126/slack-desktop-4.40.126-amd64.deb"
       register: slack_download_fallback
       failed_when: false
-      when: 
-        - slack_download.rc != 0
-      tags:
-        - downloads
-        - slow
-        - never
-
-    - name: DEBUG - Log download result
-      debug:
-        var: slack_download
-      tags:
-        - downloads
-        - slow
-        - never
-
-    - name: DEBUG - Log fallback download result
-      debug:
-        var: slack_download_fallback
-      when: slack_download_fallback is defined
+      when: slack_download.rc != 0
       tags:
         - downloads
         - slow
@@ -120,15 +82,9 @@
       failed_when: false
       when: (slack_download.rc == 0) or (slack_download_fallback.rc == 0 if slack_download_fallback is defined else false)
 
-    - name: DEBUG - Log dpkg result  
-      debug:
-        var: dpkg_result
-      when: dpkg_result is defined
-
     - name: Fix broken dependencies if dpkg installation failed
       command: apt-get install -f -y
       become: yes
-      register: apt_fix_result
       when: 
         - dpkg_result is defined
         - dpkg_result.rc != 0
@@ -149,15 +105,3 @@
     state: absent
   become: yes
   when: package_state == 'absent'
-
-- name: Verify Slack installation
-  command: dpkg -l slack-desktop
-  register: slack_verify
-  failed_when: false
-  changed_when: false
-  when: package_state == 'present'
-
-- name: DEBUG - Log final verification
-  debug:
-    var: slack_verify
-  when: package_state == 'present'
