@@ -1,5 +1,6 @@
-# Vault password file - never commit this!
+# Password files - never commit these!
 vars/vault_password.txt
+vars/become_password.txt
 
 # Temporary decrypted secrets (if any)
 vars/secrets.yml.tmp
