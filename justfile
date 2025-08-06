@@ -13,7 +13,6 @@ check-vault-setup:
         echo "Please add your vault password to vars/vault_password.txt"
         exit 1
     fi
-    echo "✅ Vault password file is configured"
 
 # Run full build (skips downloads/slow operations by default)
 build: check-vault-setup
