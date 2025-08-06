@@ -18,33 +18,21 @@
         suffix: slack
       register: slack_temp_dir
 
-    - name: Get final redirect URL for Slack download
-      uri:
-        url: "https://slack.com/downloads/instructions/linux?ddl=1&build=deb"
-        method: HEAD
-        follow_redirects: all
-        status_code: [200, 302, 301]
-      register: slack_redirect
-      tags:
-        - downloads
-        - slow
-        - never
-
-    - name: DEBUG - Log redirect result
-      debug:
-        var: slack_redirect
-      tags:
-        - downloads
-        - slow
-        - never
-
-    - name: Download Slack deb package from resolved URL
-      get_url:
-        url: "{{ slack_redirect.url }}"
-        dest: "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
-        mode: '0644'
-        timeout: 60
+    - name: Download Slack deb package using wget (follows redirects properly)
+      command: >
+        wget -O "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb" 
+        "https://slack.com/downloads/instructions/linux?ddl=1&build=deb"
       register: slack_download
+      tags:
+        - downloads
+        - slow
+        - never
+
+    - name: Check downloaded file size and type
+      stat:
+        path: "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
+      register: slack_file_check
+      when: slack_download.rc == 0
       tags:
         - downloads
         - slow
@@ -58,44 +46,40 @@
         - slow
         - never
 
-    - name: DEBUG - Log file before installation
-      stat:
-        path: "{{ slack_download.dest }}"
-      register: slack_file_stat
-      when: slack_download is defined
-
-    - name: DEBUG - Log file info
+    - name: DEBUG - Log file info after download
       debug:
-        var: slack_file_stat
-      when: slack_download is defined
+        var: slack_file_check
+      when: slack_download.rc == 0
+      tags:
+        - downloads
+        - slow
+        - never
 
     - name: Install Slack deb package with dpkg
-      command: dpkg -i "{{ slack_download.dest }}"
+      command: dpkg -i "{{ slack_temp_dir.path }}/slack-desktop-amd64.deb"
       become: yes
       register: dpkg_result
       failed_when: false
-      when: slack_download is defined
+      when: slack_download.rc == 0
 
     - name: DEBUG - Log dpkg result
       debug:
         var: dpkg_result
-      when: slack_download is defined
+      when: slack_download.rc == 0
 
     - name: Fix broken dependencies if dpkg installation failed
-      apt:
-        update_cache: yes
-        fix_broken: yes
+      command: apt-get install -f -y
       become: yes
       register: apt_fix_result
       when: 
-        - slack_download is defined
+        - slack_download.rc == 0
         - dpkg_result.rc != 0
 
     - name: DEBUG - Log apt fix result
       debug:
         var: apt_fix_result
       when: 
-        - slack_download is defined
+        - slack_download.rc == 0
         - dpkg_result.rc != 0
 
     - name: Clean up temporary directory
