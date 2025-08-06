@@ -3,11 +3,7 @@
 - name: Sys - General system packages
   include_tasks: general.yml
 
-- name: Sys - Network configuration
-  include_tasks: network.yml
-
-- name: Sys - Security hardening
-  include_tasks: security.yml
-
-- name: Sys - Performance tuning
-  include_tasks: performance.yml
+# Additional system configuration files can be added as needed:
+# - network.yml (network configuration)
+# - security.yml (security hardening)
+# - performance.yml (performance tuning)

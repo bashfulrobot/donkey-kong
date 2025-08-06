@@ -3,11 +3,7 @@
 - name: Infra - General infrastructure packages
   include_tasks: general.yml
 
-- name: Infra - Kubernetes tools
-  include_tasks: kubernetes.yml
-
-- name: Infra - Terraform setup
-  include_tasks: terraform.yml
-
-- name: Infra - Cloud CLI tools
-  include_tasks: cloud-tools.yml
+# Additional infrastructure configuration files can be added as needed:
+# - kubernetes.yml (Kubernetes tools)
+# - terraform.yml (Terraform setup)
+# - cloud-tools.yml (Cloud CLI tools)

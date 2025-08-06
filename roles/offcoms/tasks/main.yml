@@ -3,11 +3,7 @@
 - name: Offcoms - General applications
   include_tasks: general.yml
 
-- name: Offcoms - Browser configuration
-  include_tasks: browsers.yml
-
-- name: Offcoms - Communication apps
-  include_tasks: communications.yml
-
-- name: Offcoms - Office suites
-  include_tasks: office.yml
+# Additional office/communications configuration files can be added as needed:
+# - browsers.yml (browser configuration)
+# - communications.yml (communication apps)
+# - office.yml (office suites)
