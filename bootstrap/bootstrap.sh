@@ -173,6 +173,65 @@ clone_repository() {
     log_success "Repository cloned successfully to $repo_dir/donkey-kong"
 }
 
+# Setup vault password file
+setup_vault_password() {
+    local repo_dir="$HOME/dev/kong/hardware/donkey-kong"
+    local vault_file="$repo_dir/vars/vault_password.txt"
+    
+    if [ ! -d "$repo_dir" ]; then
+        log_error "Repository directory not found: $repo_dir"
+        return 1
+    fi
+    
+    if [ -f "$vault_file" ]; then
+        log_success "Vault password file already exists"
+        return
+    fi
+    
+    log_info "Vault password file not detected"
+    
+    while true; do
+        echo -n "Would you like to create the vault password file? (y/n): "
+        read -r response
+        case $response in
+            [Yy]* ) break;;
+            [Nn]* ) 
+                log_info "Skipping vault password file creation"
+                return;;
+            * ) echo "Please answer yes (y) or no (n).";;
+        esac
+    done
+    
+    log_info "Creating vault password file..."
+    
+    # Prompt for password with masking
+    echo -n "Enter vault password: "
+    read -s vault_password
+    echo  # Add newline after masked input
+    
+    if [ -z "$vault_password" ]; then
+        log_error "Password cannot be empty"
+        return 1
+    fi
+    
+    # Confirm password
+    echo -n "Confirm vault password: "
+    read -s vault_password_confirm
+    echo  # Add newline after masked input
+    
+    if [ "$vault_password" != "$vault_password_confirm" ]; then
+        log_error "Passwords do not match"
+        return 1
+    fi
+    
+    # Create the vault password file
+    echo "$vault_password" > "$vault_file"
+    chmod 600 "$vault_file"  # Secure permissions
+    
+    log_success "Vault password file created at $vault_file"
+    log_info "File permissions set to 600 for security"
+}
+
 # Main execution
 main() {
     log_info "Starting bootstrap process for Ubuntu 24.04..."
@@ -187,6 +246,7 @@ main() {
     install_helix
     install_just
     clone_repository
+    setup_vault_password
     
     log_success "Bootstrap process completed successfully!"
     log_info "You can now navigate to ~/dev/kong/hardware/donkey-kong to start working with the repository"
