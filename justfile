@@ -16,14 +16,20 @@ check-vault-setup:
 
 # Run full build (skips downloads/slow operations by default)
 build: check-vault-setup
+    #!/usr/bin/env bash
+    echo "🔐 You will be prompted for your sudo password..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --ask-become-pass --skip-tags "never"
 
 # Run full build including downloads and slow operations
 build-all: check-vault-setup
+    #!/usr/bin/env bash
+    echo "🔐 You will be prompted for your sudo password..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --ask-become-pass
 
 # Remove all installed packages and configs
 remove: check-vault-setup
+    #!/usr/bin/env bash
+    echo "🔐 You will be prompted for your sudo password..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
 
 # Run specific tags
@@ -73,6 +79,8 @@ remove-offcoms: check-vault-setup
 
 # Run only downloads and slow operations
 downloads: check-vault-setup
+    #!/usr/bin/env bash
+    echo "🔐 You will be prompted for your sudo password..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --ask-become-pass --tags "downloads,slow"
 
 # Dry run checks (skips downloads/slow operations by default)
