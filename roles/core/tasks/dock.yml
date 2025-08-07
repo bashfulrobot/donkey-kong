@@ -15,3 +15,17 @@
     value: "{{ dock_favorites }}"
     state: "{{ 'present' if package_state == 'present' else 'absent' }}"
   become_user: "{{ user_name }}"
+
+- name: Configure dash-to-dock settings
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: "{{ 'present' if package_state == 'present' else 'absent' }}"
+  become_user: "{{ user_name }}"
+  loop:
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/show-mounts", value: "true" }
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/show-trash", value: "true" }
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/extend-height", value: "true" }
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/dock-fixed", value: "false" }
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/multi-monitor", value: "true" }
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/dash-max-icon-size", value: "48" }
