@@ -21,3 +21,6 @@
 
 - name: Offcoms - Zoom video conferencing
   include_tasks: zoom.yml
+
+- name: Offcoms - Insync Google Drive sync
+  include_tasks: insync.yml

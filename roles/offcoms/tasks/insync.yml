@@ -1,0 +1,43 @@
+---
+# Insync - Google Drive sync client installation for Ubuntu 24.04
+
+- name: Add Insync GPG key
+  get_url:
+    url: https://apt.insync.io/insynchq.gpg
+    dest: /tmp/insynchq.gpg
+    mode: '0644'
+  become: yes
+
+- name: Install Insync GPG key to trusted keyring
+  shell: |
+    gpg --dearmor < /tmp/insynchq.gpg > /etc/apt/trusted.gpg.d/insynchq.gpg
+    chmod 644 /etc/apt/trusted.gpg.d/insynchq.gpg
+  become: yes
+  args:
+    creates: /etc/apt/trusted.gpg.d/insynchq.gpg
+
+- name: Add Insync repository
+  apt_repository:
+    repo: "deb http://apt.insync.io/ubuntu noble non-free contrib"
+    state: present
+    filename: insync
+  become: yes
+
+- name: Update apt cache after adding Insync repository
+  apt:
+    update_cache: yes
+  become: yes
+
+- name: Install Insync and Nautilus integration
+  apt:
+    name:
+      - insync
+      - insync-nautilus
+    state: present
+  become: yes
+
+- name: Clean up temporary GPG key file
+  file:
+    path: /tmp/insynchq.gpg
+    state: absent
+  become: yes
