@@ -1,0 +1,24 @@
+---
+# Flatpak installation and configuration
+
+- name: Install Flatpak
+  package:
+    name: flatpak
+    state: "{{ package_state }}"
+  become: true
+
+- name: Install GNOME Software Flatpak plugin
+  package:
+    name: gnome-software-plugin-flatpak
+    state: "{{ package_state }}"
+  become: true
+  when: package_state == 'present'
+
+- name: Add Flathub repository
+  flatpak_remote:
+    name: flathub
+    state: present
+    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+    method: system
+  become: true
+  when: package_state == 'present'

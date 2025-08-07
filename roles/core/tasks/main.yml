@@ -6,6 +6,9 @@
 - name: Core - Custom tools installation
   include_tasks: custom-tools.yml
 
+- name: Core - Flatpak configuration
+  include_tasks: flatpak.yml
+
 - name: Core - Git configuration
   include_tasks: git.yml
   

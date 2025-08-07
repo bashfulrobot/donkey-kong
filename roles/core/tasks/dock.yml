@@ -6,7 +6,7 @@
     dock_favorites:
       - chromium.desktop
       - slack.desktop
-      - Alacritty.desktop
+      - com.raggesilver.BlackBox.desktop
       - code.desktop
 
 - name: Configure GNOME dock favorites
