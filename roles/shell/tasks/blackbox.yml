@@ -1,0 +1,35 @@
+---
+# Blackbox terminal emulator installation and configuration
+
+- name: Install/Remove Blackbox terminal via Flatpak
+  community.general.flatpak:
+    name: com.raggesilver.BlackBox
+    state: "{{ 'present' if package_state == 'present' else 'absent' }}"
+    method: system
+    remote: flathub
+  when: package_state in ['present', 'absent']
+
+- name: Set Blackbox as default terminal
+  alternatives:
+    name: x-terminal-emulator
+    path: /var/lib/flatpak/exports/bin/com.raggesilver.BlackBox
+    link: /usr/bin/x-terminal-emulator
+    priority: 100
+  become: true
+  when: package_state == 'present'
+
+- name: Set Blackbox as default GNOME terminal
+  community.general.dconf:
+    key: "/org/gnome/desktop/default-applications/terminal/exec"
+    value: "'flatpak run com.raggesilver.BlackBox'"
+    state: "{{ 'present' if package_state == 'present' else 'absent' }}"
+  become_user: "{{ user_name }}"
+  when: package_state in ['present', 'absent']
+
+- name: Set Blackbox as default terminal emulator
+  community.general.dconf:
+    key: "/org/gnome/desktop/default-applications/terminal/exec-arg"
+    value: "''"
+    state: "{{ 'present' if package_state == 'present' else 'absent' }}"
+  become_user: "{{ user_name }}"
+  when: package_state in ['present', 'absent']
