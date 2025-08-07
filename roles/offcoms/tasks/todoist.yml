@@ -1,0 +1,16 @@
+---
+# Todoist task management application
+
+- name: Install Todoist via Snap
+  community.general.snap:
+    name: todoist
+    state: present
+  become: true
+
+- name: Configure Snap to inhibit refreshes while running apps
+  community.general.snap:
+    name: core
+    state: present
+    options:
+      - experimental.refresh-app-awareness=true
+  become: true

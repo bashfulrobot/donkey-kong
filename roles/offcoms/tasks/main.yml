@@ -24,3 +24,6 @@
 
 - name: Offcoms - Insync Google Drive sync
   include_tasks: insync.yml
+
+- name: Offcoms - Todoist task manager
+  include_tasks: todoist.yml
