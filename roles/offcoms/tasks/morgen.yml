@@ -1,0 +1,23 @@
+---
+# Morgen calendar app installation via Snap
+- name: Check if Morgen is already installed
+  command: snap list morgen
+  register: morgen_check
+  failed_when: false
+  changed_when: false
+
+- name: Install Morgen calendar app
+  snap:
+    name: morgen
+    state: present
+  become: yes
+  when: 
+    - package_state == 'present'
+    - morgen_check.rc != 0
+
+- name: Remove Morgen calendar app
+  snap:
+    name: morgen
+    state: absent
+  become: yes
+  when: package_state == 'absent'

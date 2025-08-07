@@ -27,3 +27,9 @@
 
 - name: Offcoms - Todoist task manager
   include_tasks: todoist.yml
+
+- name: Offcoms - Signal secure messaging
+  include_tasks: signal.yml
+
+- name: Offcoms - Morgen calendar app
+  include_tasks: morgen.yml

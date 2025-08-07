@@ -1,0 +1,87 @@
+---
+# Signal desktop installation for Debian-based distributions
+- name: Check if Signal is already installed
+  command: dpkg -l signal-desktop
+  register: signal_check
+  failed_when: false
+  changed_when: false
+
+- name: Signal installation block
+  block:
+    - name: Create temporary directory for Signal keyring
+      tempfile:
+        state: directory
+        suffix: signal
+      register: signal_temp_dir
+
+    - name: Download Signal's official public software signing key
+      command: >
+        wget -O- https://updates.signal.org/desktop/apt/keys.asc
+      register: signal_key_download
+
+    - name: Convert key to GPG keyring format
+      shell: >
+        echo "{{ signal_key_download.stdout }}" | 
+        gpg --dearmor > "{{ signal_temp_dir.path }}/signal-desktop-keyring.gpg"
+
+    - name: Install Signal keyring to system
+      copy:
+        src: "{{ signal_temp_dir.path }}/signal-desktop-keyring.gpg"
+        dest: /usr/share/keyrings/signal-desktop-keyring.gpg
+        owner: root
+        group: root
+        mode: '0644'
+      become: yes
+
+    - name: Add Signal repository to sources list
+      lineinfile:
+        path: /etc/apt/sources.list.d/signal-xenial.list
+        line: 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main'
+        create: yes
+        owner: root
+        group: root
+        mode: '0644'
+      become: yes
+
+    - name: Update apt package database
+      apt:
+        update_cache: yes
+      become: yes
+
+    - name: Install Signal desktop
+      apt:
+        name: signal-desktop
+        state: present
+      become: yes
+
+    - name: Clean up temporary directory
+      file:
+        path: "{{ signal_temp_dir.path }}"
+        state: absent
+      when: signal_temp_dir.path is defined
+
+  when: 
+    - package_state == 'present'
+    - signal_check.rc != 0
+
+- name: Remove Signal
+  block:
+    - name: Remove Signal desktop package
+      apt:
+        name: signal-desktop
+        state: absent
+      become: yes
+
+    - name: Remove Signal repository
+      file:
+        path: /etc/apt/sources.list.d/signal-xenial.list
+        state: absent
+      become: yes
+
+    - name: Remove Signal keyring
+      file:
+        path: /usr/share/keyrings/signal-desktop-keyring.gpg
+        state: absent
+      become: yes
+
+  when: package_state == 'absent'
