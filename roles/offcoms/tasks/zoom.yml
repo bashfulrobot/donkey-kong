@@ -50,16 +50,3 @@
 
   when: package_state == 'absent'
 
-- name: Verify Zoom installation
-  command: zoom --version
-  register: zoom_version
-  failed_when: false
-  changed_when: false
-  when: package_state == 'present'
-
-- name: Display Zoom installation status
-  debug:
-    msg: "Zoom installed successfully"
-  when: 
-    - package_state == 'present'
-    - zoom_check.rc != 0
