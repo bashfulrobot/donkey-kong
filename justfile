@@ -45,27 +45,27 @@ remove: check-vault-setup
 # Run specific tags
 dev: check-vault-setup
     #!/usr/bin/env bash
-    echo "🔐 You will be prompted for your sudo password..."
+    echo "🔐 Using configured password files..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags dev 
 infra: check-vault-setup
     #!/usr/bin/env bash
-    echo "🔐 You will be prompted for your sudo password..."
+    echo "🔐 Using configured password files..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags infra 
 offcoms: check-vault-setup
     #!/usr/bin/env bash
-    echo "🔐 You will be prompted for your sudo password..."
+    echo "🔐 Using configured password files..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags offcoms 
 shell: check-vault-setup
     #!/usr/bin/env bash
-    echo "🔐 You will be prompted for your sudo password..."
+    echo "🔐 Using configured password files..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags shell 
 sys: check-vault-setup
     #!/usr/bin/env bash
-    echo "🔐 You will be prompted for your sudo password..."
+    echo "🔐 Using configured password files..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags sys 
 core: check-vault-setup
     #!/usr/bin/env bash
-    echo "🔐 You will be prompted for your sudo password..."
+    echo "🔐 Using configured password files..."
     ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags core 
 # Skip certain tags
 build-skip-offcoms: check-vault-setup
@@ -76,22 +76,22 @@ build-skip-infra: check-vault-setup
 
 # Remove specific components
 remove-dev: check-vault-setup
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags dev --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags dev -e "package_state=absent service_state=stopped config_state=absent"
 
 remove-shell: check-vault-setup
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags shell --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags shell -e "package_state=absent service_state=stopped config_state=absent"
 
 remove-core: check-vault-setup
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags core --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags core -e "package_state=absent service_state=stopped config_state=absent"
 
 remove-sys: check-vault-setup
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags sys --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags sys -e "package_state=absent service_state=stopped config_state=absent"
 
 remove-infra: check-vault-setup
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags infra --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags infra -e "package_state=absent service_state=stopped config_state=absent"
 
 remove-offcoms: check-vault-setup
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags offcoms --ask-become-pass -e "package_state=absent service_state=stopped config_state=absent"
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --tags offcoms -e "package_state=absent service_state=stopped config_state=absent"
 
 # Run only downloads and slow operations
 downloads: check-vault-setup
@@ -101,7 +101,7 @@ downloads: check-vault-setup
 
 # Dry run checks (skips downloads/slow operations by default)
 check: check-vault-setup
-    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --ask-become-pass --skip-tags "never"
+    ansible-playbook -i inventory/localhost.yml playbooks/main.yml --check --skip-tags "never"
 
 # Dry run including downloads and slow operations
 check-all: check-vault-setup
